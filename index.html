@@ -177,44 +177,56 @@
     </div>
 
     <script>
-      document.getElementById('financeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const btn = form.querySelector('button');
-        const statusDiv = document.getElementById('status');
-        
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+  // Ganti URL ini dengan URL Web App Anda yang didapat setelah Deploy di Apps Script
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
 
-        google.script.run.withSuccessHandler(function(res) {
-          statusDiv.innerText = res;
-          statusDiv.style.display = 'block';
-          form.reset();
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+  // Otomatis isi tanggal hari ini
+  document.getElementById('tanggalInput').valueAsDate = new Date();
 
-          function prosesForm(data) {
-          const ss = SpreadsheetApp.getActiveSpreadsheet("15wCqb2OavBI0GbJcrKPjHI9PkH8GO0JzHyjaWMD8_Rg");
-          const sheet = ss.getSheetByName("Database");
-  
-           sheet.appendRow([
-           data.tanggal,
-           data.jenis,
-           data.kategori,
-           Number(data.nominal),
-           data.keterangan,
-           new Date() // Timestamp
-            ]);
-  
-            return "Sukses! Data telah tersimpan.";
-            }
-          
-          // Hilangkan pesan sukses setelah 5 detik
-          setTimeout(() => {
-            statusDiv.style.display = 'none';
-          }, 5000);
-        }).prosesForm(form);
-      });
-    </script>
+  document.getElementById('financeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button');
+    const statusDiv = document.getElementById('status');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+    // Mengambil data dari form
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
+
+    // Mengirim data ke Google Apps Script via Fetch API
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", // Penting untuk menghindari error CORS di GitHub Pages
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(() => {
+      statusDiv.innerText = "✅ Sukses! Data terkirim (Cek Spreadsheet Anda).";
+      statusDiv.style.display = 'block';
+      statusDiv.className = "mt-3 text-center alert alert-success";
+      
+      form.reset();
+      document.getElementById('tanggalInput').valueAsDate = new Date();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+      
+      setTimeout(() => {
+        statusDiv.style.display = 'none';
+      }, 5000);
+    })
+    .catch(err => {
+      statusDiv.innerText = "❌ Terjadi kesalahan: " + err;
+      statusDiv.style.display = 'block';
+      statusDiv.className = "mt-3 text-center alert alert-danger";
+      btn.disabled = false;
+    });
+  });
+</script>
   </body>
 </html>
