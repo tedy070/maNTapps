@@ -199,6 +199,22 @@
           }, 5000);
         }).prosesForm(form);
       });
+      // Fungsi untuk menerima data dari form HTML dan menyimpannya ke Sheet
+function prosesForm(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet('15wCqb2OavBI0GbJcrKPjHI9PkH8GO0JzHyjaWMD8_Rg');
+  const sheet = ss.getSheetByName("Database");
+  
+  sheet.appendRow([
+    data.tanggal,
+    data.jenis,
+    data.kategori,
+    Number(data.nominal),
+    data.keterangan,
+    new Date() // Timestamp
+  ]);
+  
+  return "Sukses! Data telah tersimpan.";
+}
     </script>
   </body>
 </html>
