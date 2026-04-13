@@ -133,9 +133,9 @@
             </div>
 
             <div class="mb-4">
-              <label class="form-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
-              <textarea class="form-control" name="keterangan" rows="2" placeholder="Contoh: Beli seserahan mukena..."></textarea>
-            </div>
+                <label class="form-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
+                <textarea class="form-control" name="keterangan" rows="2" placeholder="Catat sesuai yang berkaitan contoh Tedy,Nadya,Mukena,Sajadah..."></textarea>
+              </div>
 
             <button type="submit" class="btn btn-primary btn-submit w-100">
               <i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi
@@ -155,12 +155,6 @@
   <script>
     // GANTI URL INI dengan URL Web App (Deployment) dari Google Apps Script Anda
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
-
-    // Set tanggal hari ini secara otomatis
-    const dateInput = document.getElementById('tanggalInput');
-    if(dateInput) {
-      dateInput.valueAsDate = new Date();
-    }
 
     document.getElementById('financeForm').addEventListener('submit', function(e) {
       e.preventDefault();
