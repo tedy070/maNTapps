@@ -13,12 +13,12 @@
         font-family: 'Poppins', sans-serif;
         min-height: 100vh;
         display: flex;
-        align-items: flex-start; /* Mengubah ke start agar tidak terpotong di HP layar pendek */
+        align-items: flex-start;
         padding: 15px 0;
       }
       .form-container { 
         background: white; 
-        padding: 30px 20px; /* Padding disesuaikan untuk HP */
+        padding: 30px 20px; 
         border-radius: 20px; 
         box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
         border: 1px solid rgba(255,255,255,0.3);
@@ -29,20 +29,20 @@
         color: #4a4a4a;
         font-weight: 600;
         margin-bottom: 25px;
-        font-size: 1.4rem; /* Ukuran teks judul sedikit disesuaikan */
+        font-size: 1.4rem;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
       .header-title img {
-        width: 60px; /* Foto profil sedikit diperbesar */
+        width: 60px;
         height: 60px;
         border-radius: 50%;
         object-fit: cover;
         border: 3px solid #6c5ce7;
-        margin-bottom: 10px; /* Agar foto dan teks punya ruang di mobile */
+        margin-bottom: 10px;
       }
       .form-label {
-        font-weight: 600; /* Lebih tebal agar mudah dibaca */
+        font-weight: 600;
         color: #444;
         margin-bottom: 10px;
         font-size: 1rem;
@@ -51,11 +51,10 @@
         margin-right: 8px;
         color: #6c5ce7;
       }
-      /* Memperbesar area input dan select agar mudah ditekan jari */
       .form-control, .form-select, .input-group-text {
         border-radius: 12px !important;
         padding: 14px; 
-        font-size: 16px !important; /* Mencegah auto-zoom pada iPhone saat input focus */
+        font-size: 16px !important; 
         border: 1px solid #ced4da;
         transition: all 0.3s ease;
       }
@@ -67,15 +66,13 @@
         background: linear-gradient(to right, #6c5ce7, #a29bfe);
         border: none;
         border-radius: 12px;
-        padding: 16px; /* Tombol lebih tinggi agar mantap ditekan */
+        padding: 16px;
         font-weight: 600;
         font-size: 1.1rem;
         transition: transform 0.2s, box-shadow 0.2s;
         margin-top: 10px;
       }
-      .btn-submit:active {
-        transform: scale(0.98);
-      }
+      .btn-submit:active { transform: scale(0.98); }
       #status {
         border-radius: 12px;
         padding: 15px;
@@ -83,15 +80,9 @@
         font-size: 0.95rem;
         margin-top: 20px;
       }
-      /* Menghapus margin kontainer di layar kecil agar lebih lebar */
       @media (max-width: 576px) {
-        .container {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-        .form-container {
-          padding: 25px 15px;
-        }
+        .container { padding-left: 10px; padding-right: 10px; }
+        .form-container { padding: 25px 15px; }
       }
     </style>
   </head>
@@ -100,21 +91,22 @@
       <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
           <div class="form-container">
-            <h3 class="text-center header-title">
-              <i class="fa-solid fa-heart-circle-check text-danger me-2"></i>Wedding Budgeting
-            </h3>
+            <div class="text-center mb-3">
+               <i class="fa-solid fa-heart-circle-check text-danger fa-3x mb-2"></i>
+               <h3 class="header-title">Wedding Budgeting</h3>
+            </div>
             
             <form id="financeForm">
               <div class="mb-3">
                 <label class="form-label"><i class="fa-solid fa-calendar-days"></i>Tanggal</label>
-                <input type="date" class="form-control" name="tanggal" required>
+                <input type="date" class="form-control" name="tanggal" id="tanggalInput" required>
               </div>
 
               <div class="mb-3">
                 <label class="form-label"><i class="fa-solid fa-arrow-right-arrow-left"></i>Jenis Transaksi</label>
                 <select class="form-select" name="jenis" required>
                   <option value="Income">Income (Pemasukan)</option>
-                  <option value="Expenses">Expenses (Pengeluaran)</option>
+                  <option value="Expenses" selected>Expenses (Pengeluaran)</option>
                 </select>
               </div>
 
@@ -122,12 +114,10 @@
                 <label class="form-label"><i class="fa-solid fa-tag"></i>Kategori</label>
                 <select class="form-select" name="kategori" required>
                   <option value="" disabled selected>Pilih Kategori...</option>
-                  
                   <optgroup label="Pemasukan">
                     <option value="Tabungan">Tabungan</option>
                     <option value="Bonus">Bonus</option>
                   </optgroup>
-
                   <optgroup label="Pengeluaran">
                     <option value="Administrasi Persiapan Pernikahan">Administrasi Persiapan Pernikahan</option>
                     <option value="Prayer Sett">Prayer Set</option>
@@ -143,7 +133,6 @@
                     <option value="Invitation">Invitation</option>
                     <option value="Lain-Lain">Lain-Lain</option>
                   </optgroup>
-                  
                   <option value="Lainnya">Lainnya</option>
                 </select>
               </div>
@@ -152,13 +141,13 @@
                 <label class="form-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
                 <div class="input-group">
                   <span class="input-group-text bg-light">Rp</span>
-                  <input type="number" class="form-control" name="nominal" placeholder="0" required>
+                  <input type="number" class="form-control" name="nominal" placeholder="0" inputmode="numeric" required>
                 </div>
               </div>
 
               <div class="mb-4">
                 <label class="form-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
-                <textarea class="form-control" name="keterangan" rows="2" placeholder="Catat sesuai yang berkaitan contoh Tedy,Nadya,Mukena,Sajadah..."></textarea>
+                <textarea class="form-control" name="keterangan" rows="2" placeholder="Catat detail transaksi (Contoh: Beli Seserahan)"></textarea>
               </div>
 
               <button type="submit" class="btn btn-primary btn-submit w-100">
@@ -177,6 +166,9 @@
     </div>
 
     <script>
+      // Set tanggal hari ini otomatis
+      document.getElementById('tanggalInput').valueAsDate = new Date();
+
       document.getElementById('financeForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const form = e.target;
@@ -186,35 +178,20 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
 
+        // MEMANGGIL FUNGSI DI CODE.GS
         google.script.run.withSuccessHandler(function(res) {
           statusDiv.innerText = res;
           statusDiv.style.display = 'block';
           form.reset();
+          document.getElementById('tanggalInput').valueAsDate = new Date();
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
           
-          // Hilangkan pesan sukses setelah 5 detik
           setTimeout(() => {
             statusDiv.style.display = 'none';
           }, 5000);
         }).prosesForm(form);
       });
-      // Fungsi untuk menerima data dari form HTML dan menyimpannya ke Sheet
-function prosesForm(data) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet('15wCqb2OavBI0GbJcrKPjHI9PkH8GO0JzHyjaWMD8_Rg');
-  const sheet = ss.getSheetByName("Database");
-  
-  sheet.appendRow([
-    data.tanggal,
-    data.jenis,
-    data.kategori,
-    Number(data.nominal),
-    data.keterangan,
-    new Date() // Timestamp
-  ]);
-  
-  return "Sukses! Data telah tersimpan.";
-}
     </script>
   </body>
 </html>
