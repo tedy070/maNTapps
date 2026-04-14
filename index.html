@@ -123,6 +123,10 @@
   <div id="ant-invasion-container">
   <div class="ant"></div>
 </div>
+
+  <canvas id="fireworks-canvas" 
+        style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99;">
+</canvas>
   
   <div class="container">
     <div class="row justify-content-center">
@@ -198,99 +202,141 @@
   </div>
 
   <script>
-    <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
+  // 1. Inisialisasi URL dan Canvas (Lakukan di awal agar tidak undefined)
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
+  const canvas = document.getElementById('fireworks-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
 
-    // --- LOGIKA KEMBANG API ---
-    const canvas = document.getElementById('fireworks-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    class Particle {
-      constructor(x, y, color) {
-        this.x = x; this.y = y; this.color = color;
-        this.velocity = { x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10 };
-        this.alpha = 1; this.friction = 0.95; this.gravity = 0.2;
-      }
-      draw() {
-        ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
-      }
-      update() {
-        this.velocity.x *= this.friction; this.velocity.y *= this.friction;
-        this.velocity.y += this.gravity; this.x += this.velocity.x;
-        this.y += this.velocity.y; this.alpha -= 0.015;
-      }
+  // 2. Class Particle (Logika per partikel)
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.velocity = {
+        x: (Math.random() - 0.5) * (Math.random() * 12),
+        y: (Math.random() - 0.5) * (Math.random() * 12)
+      };
+      this.alpha = 1;
+      this.friction = 0.96;
+      this.gravity = 0.15;
     }
 
-    function launchFireworks(x, y) {
-      const colors = ['#ff0044', '#6c5ce7', '#00ffcc', '#ffcc00', '#ffffff'];
-      for (let i = 0; i < 60; i++) {
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = this.color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    update() {
+      this.velocity.x *= this.friction;
+      this.velocity.y *= this.friction;
+      this.velocity.y += this.gravity;
+      this.x += this.velocity.x;
+      this.y += this.velocity.y;
+      this.alpha -= 0.015;
+    }
+  }
+
+  // 3. Fungsi Launch Fireworks (Sudah mendukung parameter x, y)
+  function launchFireworks(targetX, targetY) {
+    const explosionCount = targetX !== undefined ? 1 : Math.floor(Math.random() * 3) + 3;
+    const colors = ['#bef264', '#ffffff', '#38bdf8', '#fb923c', '#f472b6', '#a78bfa'];
+
+    for (let i = 0; i < explosionCount; i++) {
+      // Gunakan koordinat tombol jika ada, jika tidak gunakan acak
+      const x = targetX || Math.random() * canvas.width;
+      const y = targetY || Math.random() * (canvas.height * 0.7);
+      
+      for (let j = 0; j < 60; j++) {
         particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
       }
     }
+  }
 
-    function animate() {
-      requestAnimationFrame(animate);
-      ctx.fillStyle = 'rgba(245, 247, 250, 0.2)'; // Mengikuti warna bg transparan
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p, i) => {
-        if (p.alpha > 0) { p.update(); p.draw(); }
-        else { particles.splice(i, 1); }
-      });
-    }
-    animate();
-
-    // --- SUBMIT FORM ---
-    document.getElementById('financeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const rect = e.target.querySelector('button').getBoundingClientRect();
-      const clickX = rect.left + rect.width / 2;
-      const clickY = rect.top + rect.height / 2;
-
-      const form = e.target;
-      const btn = form.querySelector('button');
-      const statusDiv = document.getElementById('status');
-      
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
-
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
-
-      fetch(WEB_APP_URL, {
-        method: "POST",
-        mode: "no-cors", 
-        body: JSON.stringify(data),
-      })
-      .then(() => {
-        // MELEDAKKAN KEMBANG API SAAT SUKSES
-        launchFireworks(clickX, clickY);
-        setTimeout(launchFireworks, 200, Math.random() * canvas.width, Math.random() * canvas.height/2);
-
-        statusDiv.innerText = "✅ Sukses Disimpan!";
-        statusDiv.style.display = 'block';
-        statusDiv.className = "mt-3 text-center alert alert-success";
-        
-        form.reset();
-        document.getElementById('tanggalInput').valueAsDate = new Date();
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
-      })
-      .catch(err => {
-        alert("Gagal: " + err);
-        btn.disabled = false;
-      });
+  // 4. Animasi Loop
+  function animateFireworks() {
+    requestAnimationFrame(animateFireworks);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.1)'; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((particle, index) => {
+      if (particle.alpha > 0) {
+        particle.update();
+        particle.draw();
+      } else {
+        particles.splice(index, 1);
+      }
     });
-  </script>
+  }
+  animateFireworks();
+
+  // 5. Submit Form dengan Trigger Kembang Api
+  document.getElementById('financeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('button');
+    const rect = btn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const form = e.target;
+    const statusDiv = document.getElementById('status');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
+
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", 
+      body: JSON.stringify(data),
+    })
+    .then(() => {
+      // Ledakan utama tepat di tombol
+      launchFireworks(centerX, centerY);
+      
+      // Ledakan tambahan di area atas agar ramai
+      setTimeout(() => launchFireworks(), 400);
+      setTimeout(() => launchFireworks(), 800);
+
+      statusDiv.innerText = "✨ Transaksi Berhasil Dicatat!";
+      statusDiv.style.display = 'block';
+      statusDiv.className = "mt-3 text-center alert alert-success";
+      
+      form.reset();
+      document.getElementById('tanggalInput').valueAsDate = new Date();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+      
+      setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+    })
+    .catch(err => {
+      alert("Masalah: " + err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+    });
+  });
+
+  // Set default tanggal hari ini
+  document.getElementById('tanggalInput').valueAsDate = new Date();
+</script>
 </body>
 </html>
