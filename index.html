@@ -198,11 +198,64 @@
   </div>
 
   <script>
-    // GANTI URL INI dengan URL Web App (Deployment) dari Google Apps Script Anda
+    <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
 
+    // --- LOGIKA KEMBANG API ---
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        this.velocity = { x: (Math.random() - 0.5) * 10, y: (Math.random() - 0.5) * 10 };
+        this.alpha = 1; this.friction = 0.95; this.gravity = 0.2;
+      }
+      draw() {
+        ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
+      }
+      update() {
+        this.velocity.x *= this.friction; this.velocity.y *= this.friction;
+        this.velocity.y += this.gravity; this.x += this.velocity.x;
+        this.y += this.velocity.y; this.alpha -= 0.015;
+      }
+    }
+
+    function launchFireworks(x, y) {
+      const colors = ['#ff0044', '#6c5ce7', '#00ffcc', '#ffcc00', '#ffffff'];
+      for (let i = 0; i < 60; i++) {
+        particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.fillStyle = 'rgba(245, 247, 250, 0.2)'; // Mengikuti warna bg transparan
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        if (p.alpha > 0) { p.update(); p.draw(); }
+        else { particles.splice(i, 1); }
+      });
+    }
+    animate();
+
+    // --- SUBMIT FORM ---
     document.getElementById('financeForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      const rect = e.target.querySelector('button').getBoundingClientRect();
+      const clickX = rect.left + rect.width / 2;
+      const clickY = rect.top + rect.height / 2;
+
       const form = e.target;
       const btn = form.querySelector('button');
       const statusDiv = document.getElementById('status');
@@ -218,12 +271,13 @@
         method: "POST",
         mode: "no-cors", 
         body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
       })
       .then(() => {
-        statusDiv.innerText = "✅ Sukses! Data telah dikirim ke Spreadsheet.";
+        // MELEDAKKAN KEMBANG API SAAT SUKSES
+        launchFireworks(clickX, clickY);
+        setTimeout(launchFireworks, 200, Math.random() * canvas.width, Math.random() * canvas.height/2);
+
+        statusDiv.innerText = "✅ Sukses Disimpan!";
         statusDiv.style.display = 'block';
         statusDiv.className = "mt-3 text-center alert alert-success";
         
@@ -231,17 +285,10 @@
         document.getElementById('tanggalInput').valueAsDate = new Date();
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
-        
-        setTimeout(() => {
-          statusDiv.style.display = 'none';
-        }, 5000);
       })
       .catch(err => {
-        statusDiv.innerText = "❌ Gagal mengirim data: " + err;
-        statusDiv.style.display = 'block';
-        statusDiv.className = "mt-3 text-center alert alert-danger";
+        alert("Gagal: " + err);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
       });
     });
   </script>
