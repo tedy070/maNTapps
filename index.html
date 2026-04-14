@@ -77,9 +77,53 @@
       .container { padding-left: 10px; padding-right: 10px; }
       .form-container { padding: 25px 15px; }
     }
+    /* CONTAINER UNTUK JALUR SEMUT */
+#ant-invasion-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* Agar tidak menghalangi klik button aplikasi */
+  z-index: 100; /* Paling atas */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* GAMBAR SEMUT (SVG) */
+.ant {
+  width: 16px; /* Ukuran semut kecil */
+  height: 16px;
+  position: absolute;
+  /* Warna Semut: Hitam agar terlihat di atas Glassmorphism */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="40" ry="20" fill="black"/><ellipse cx="20" cy="50" rx="15" ry="10" fill="black"/><ellipse cx="80" cy="50" rx="15" ry="10" fill="black"/><line x1="10" y1="20" x2="30" y2="40" stroke="black" stroke-width="5"/><line x1="90" y1="20" x2="70" y2="40" stroke="black" stroke-width="5"/><line x1="10" y1="80" x2="30" y2="60" stroke="black" stroke-width="5"/><line x1="90" y1="80" x2="70" y2="60" stroke="black" stroke-width="5"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  
+  /* Logika Pergerakan */
+  offset-path: path('M -20 50 Q 50 -20, 120 50 T 260 50'); /* Jalur acak dari kiri ke kanan */
+  offset-rotate: auto;
+  animation: ant-march-real 10s linear infinite;
+}
+
+/* Jeda Waktu Berjalan untuk Masing-masing Semut */
+.ant:nth-child(1) { animation-delay: 0s; }
+.ant:nth-child(2) { animation-delay: 2s; }
+.ant:nth-child(3) { animation-delay: 4s; }
+.ant:nth-child(4) { animation-delay: 6s; }
+
+/* ANIMASI GERAK */
+@keyframes ant-march-real {
+  0% { offset-distance: 0%; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
   </style>
 </head>
 <body>
+  <div id="ant-invasion-container">
+  <div class="ant"></div>
+</div>
+  
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-5">
