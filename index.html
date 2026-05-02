@@ -71,7 +71,7 @@ body {
 
 /* ── LOGIN CARD ── */
 .card-flipper {
-  width: 280px; height: 220px;
+  width: 280px; height: 300px;
   position: relative; z-index: 5;
   perspective: 1000px; margin-bottom: -10px;
 }
@@ -116,7 +116,7 @@ body {
 }
 .eye-btn:hover { color: #c07b3a; }
 .hint { font-size: 0.74rem; color: #b08060; font-style: italic; margin-top: 2px; }
-.card-back .wb-icon { font-size: 3.2rem; margin-bottom: 14px; }
+.card-back .wb-icon { font-size: 3.2rem; margin-bottom: 10px; }
 .card-back .wb-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.55rem; color: #5a3010;
@@ -124,8 +124,23 @@ body {
 }
 .card-back .wb-sub {
   font-size: 0.82rem; color: #a07040;
-  margin-top: 8px; font-style: italic; text-align: center;
+  margin-top: 6px; font-style: italic; text-align: center;
 }
+.card-back .wb-divider {
+  width: 60%; height: 1.5px; background: linear-gradient(90deg,transparent,#c89a5a,transparent);
+  margin: 10px auto;
+}
+.card-back .wb-detail {
+  font-size: 0.78rem; color: #7a4a10; text-align: center; line-height: 1.6;
+}
+.card-back .wb-loading {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 10px; font-size: 0.74rem; color: #a07040; font-style: italic;
+}
+.wb-dot { width:6px; height:6px; border-radius:50%; background:#c89a5a; animation: wbPulse 1.2s ease-in-out infinite; }
+.wb-dot:nth-child(2) { animation-delay: 0.2s; }
+.wb-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wbPulse { 0%,80%,100%{transform:scale(0.7);opacity:0.5} 40%{transform:scale(1);opacity:1} }
 
 /* ── TOASTER BODY ── */
 .toaster-wrap { position: relative; width: 320px; z-index: 10; }
@@ -255,7 +270,7 @@ body {
   display: none; opacity: 0;
   width: 100%; min-height: 100vh;
   align-items: flex-start; justify-content: center;
-  padding: 18px 12px 30px;
+  padding: 12px 0 30px;
   transform: scale(0.9) translateY(30px);
   transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
               transform 0.9s cubic-bezier(0.22,1,0.36,1);
@@ -267,10 +282,22 @@ body {
   background: #fdf3d4;
   border: 4px solid #c89a5a;
   border-radius: 20px;
-  padding: 28px 22px 24px;
+  padding: 24px 18px 22px;
   width: 100%; max-width: 480px;
   margin: 0 auto;
   box-shadow: 0 10px 32px #a0723840;
+}
+
+@media (max-width: 520px) {
+  .budget-card {
+    border-radius: 0;
+    border-left: none; border-right: none;
+    padding: 20px 16px 20px;
+    max-width: 100%;
+  }
+  #budget-page { padding: 0 0 24px; }
+  .budget-wrap { max-width: 100%; }
+  .footer-note { margin-top: 10px; }
 }
 
 .budget-title {
@@ -351,7 +378,7 @@ body {
 .b-logout:hover { background: #f5e0a0; }
 
 .budget-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
-.footer-note { text-align: center; margin-top: 14px; font-size: 0.75rem; color: #b08060; }
+.footer-note { text-align: center; margin-top: 14px; font-size: 0.75rem; color: #b08060; padding: 0 12px; }
 
 /* ── CRUMBS ── */
 .crumb {
@@ -401,7 +428,18 @@ body {
         <div class="card-back">
           <div class="wb-icon">🍞</div>
           <p class="wb-title">Selamat<br>Datang!</p>
-          <p class="wb-sub">Loading budgeting... ✨</p>
+          <div class="wb-divider"></div>
+          <p class="wb-detail">
+            💍 Wedding Budgeting<br>
+            Catat setiap rupiah<br>
+            menuju hari bahagia
+          </p>
+          <div class="wb-loading">
+            <div class="wb-dot"></div>
+            <div class="wb-dot"></div>
+            <div class="wb-dot"></div>
+          </div>
+          <p class="wb-sub">Membuka dashboard... ✨</p>
         </div>
       </div>
     </div>
@@ -591,12 +629,18 @@ function simpanTransaksi() {
   .then(() => {
     console.log("Request POST ke Apps Script selesai.");
     
-    // Tampilkan efek atau animasi kembang api jika ada
+    // Kembang api spektakuler di beberapa titik
+    const r = btn.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
     if (typeof launchFW === 'function') {
-      const r = btn.getBoundingClientRect();
-      launchFW(r.left + r.width / 2, r.top + r.height / 2);
-      setTimeout(() => launchFW(), 400);
-      setTimeout(() => launchFW(), 800);
+      launchFW(cx, cy);
+      setTimeout(() => launchFW(canvas.width*0.2, canvas.height*0.3), 250);
+      setTimeout(() => launchFW(canvas.width*0.8, canvas.height*0.25), 500);
+      setTimeout(() => launchFW(canvas.width*0.5, canvas.height*0.15), 750);
+      setTimeout(() => launchFW(canvas.width*0.15, canvas.height*0.5), 1000);
+      setTimeout(() => launchFW(canvas.width*0.85, canvas.height*0.45), 1200);
+      setTimeout(() => launchFW(canvas.width*0.5, canvas.height*0.35), 1450);
     }
 
     statusDiv.textContent = '✨ Transaksi berhasil dicatat!';
@@ -788,37 +832,63 @@ resizeCanvas();
 class FWParticle {
   constructor(x,y,color) {
     this.x=x; this.y=y; this.color=color;
-    this.vx=(Math.random()-0.5)*(Math.random()*14);
-    this.vy=(Math.random()-0.5)*(Math.random()*14);
-    this.alpha=1; this.friction=0.96; this.gravity=0.15;
+    this.vx=(Math.random()-0.5)*(Math.random()*22+8);
+    this.vy=(Math.random()-0.5)*(Math.random()*22+8);
+    this.alpha=1; this.friction=0.94; this.gravity=0.18;
+    this.size=Math.random()*4+2;
+    this.trail=[];
   }
   draw() {
+    for(let i=0;i<this.trail.length;i++){
+      const t=this.trail[i];
+      ctx.save(); ctx.globalAlpha=t.alpha*0.45; ctx.beginPath();
+      ctx.arc(t.x,t.y,this.size*0.55,0,Math.PI*2);
+      ctx.fillStyle=this.color; ctx.shadowBlur=14; ctx.shadowColor=this.color;
+      ctx.fill(); ctx.restore();
+    }
     ctx.save(); ctx.globalAlpha=this.alpha; ctx.beginPath();
-    ctx.arc(this.x,this.y,2,0,Math.PI*2);
-    ctx.fillStyle=this.color; ctx.shadowBlur=10; ctx.shadowColor=this.color;
-    ctx.fill(); ctx.restore();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=this.color; ctx.shadowBlur=22; ctx.shadowColor=this.color;
+    ctx.fill();
+    ctx.globalAlpha=this.alpha*0.65; ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size*0.38,0,Math.PI*2);
+    ctx.fillStyle='#ffffff'; ctx.fill();
+    ctx.restore();
   }
   update() {
+    this.trail.push({x:this.x,y:this.y,alpha:this.alpha});
+    if(this.trail.length>7) this.trail.shift();
+    this.trail.forEach(t=>t.alpha*=0.80);
     this.vx*=this.friction; this.vy*=this.friction;
     this.vy+=this.gravity; this.x+=this.vx; this.y+=this.vy;
-    this.alpha-=0.014;
+    this.alpha-=0.016;
   }
 }
 
-function launchFW(tx,ty) {
-  const colors=['#f5c9a8','#c89a5a','#fdf3d4','#d4a060','#a07030','#f5e0a0','#fff8e0'];
-  const count = tx!==undefined ? 1 : Math.floor(Math.random()*3)+3;
+const FW_COLORS=['#FF3366','#FF6633','#FFCC00','#33FF99','#33CCFF','#CC33FF',
+  '#FF99CC','#FF9933','#66FF33','#FF3399','#FFFF33','#00FFCC','#FF66FF','#FF0000','#00FF44','#FF8800'];
+
+function launchFW(ox,oy) {
+  const x = ox!==undefined ? ox : Math.random()*canvas.width;
+  const y = oy!==undefined ? oy : Math.random()*(canvas.height*0.55);
+  const count = 70+Math.floor(Math.random()*30);
   for(let i=0;i<count;i++){
-    const x = tx||Math.random()*canvas.width;
-    const y = ty||Math.random()*(canvas.height*0.7);
-    for(let j=0;j<70;j++) fwParticles.push(new FWParticle(x,y,colors[Math.floor(Math.random()*colors.length)]));
+    const color=FW_COLORS[Math.floor(Math.random()*FW_COLORS.length)];
+    fwParticles.push(new FWParticle(x,y,color));
+  }
+  // Bintang kecil di pusat ledakan
+  for(let i=0;i<14;i++){
+    const p=new FWParticle(x,y,'#ffffff');
+    p.vx=(Math.random()-0.5)*7; p.vy=(Math.random()-0.5)*7; p.size=1.8;
+    fwParticles.push(p);
   }
 }
 
 (function animFW(){
   requestAnimationFrame(animFW);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  fwParticles = fwParticles.filter(p => p.alpha > 0);
+  ctx.fillStyle='rgba(245,201,168,0.20)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  fwParticles=fwParticles.filter(p=>p.alpha>0.02);
   fwParticles.forEach(p=>{ p.update(); p.draw(); });
 })();
 
@@ -985,11 +1055,11 @@ document.getElementById('lever').addEventListener('click',()=>{
   setTimeout(()=>{
     heatingBar.classList.remove('active');
     cardFlipper.style.transition='transform 0.8s cubic-bezier(0.34,1.56,0.64,1)';
-    cardFlipper.style.transform='translateY(-210px)';
+    cardFlipper.style.transform='translateY(-270px)';
   },1800);
   setTimeout(()=>{
     cardFlipper.style.transition='transform 0.7s cubic-bezier(0.4,0,1,1),opacity 0.65s ease';
-    cardFlipper.style.transform='translateY(-560px)';
+    cardFlipper.style.transform='translateY(-640px)';
     cardFlipper.style.opacity='0';
     loginScene.classList.add('fade-out');
   },2750);
