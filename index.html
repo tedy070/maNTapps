@@ -544,6 +544,67 @@ body {
 ══════════════════════════════════════════ -->
 <script>
 /* ═══════════════════════════════════════
+   BUDGET FORM  –  SIMPAN TRANSAKSI
+═══════════════════════════════════════ */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
+
+function simpanTransaksi() {
+  const tanggal  = document.getElementById('f-tanggal').value;
+  const jenis    = document.getElementById('f-jenis').value;
+  const kategori = document.getElementById('f-kategori').value;
+  const nominal  = document.getElementById('f-nominal').value;
+  const keterangan = document.getElementById('f-keterangan').value;
+  const statusDiv  = document.getElementById('b-status');
+  const btn        = document.getElementById('btn-simpan');
+
+  if(!tanggal||!jenis||!kategori||!nominal){
+    statusDiv.textContent='⚠️ Lengkapi semua field yang wajib diisi.';
+    statusDiv.className='b-status error'; statusDiv.style.display='block';
+    setTimeout(()=>statusDiv.style.display='none',4000);
+    return;
+  }
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Menyimpan...';
+
+  const data={tanggal,jenis,kategori,nominal,keterangan};
+
+  fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)})
+  .then(()=>{
+    /* ── SUCCESS: fireworks then logout ── */
+    const r=btn.getBoundingClientRect();
+    launchFW(r.left+r.width/2, r.top+r.height/2);
+    setTimeout(()=>launchFW(),400);
+    setTimeout(()=>launchFW(),800);
+
+    statusDiv.textContent='✨ Transaksi berhasil dicatat!';
+    statusDiv.className='b-status success'; statusDiv.style.display='block';
+
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
+
+    /* clear form */
+    document.getElementById('f-jenis').value='';
+    document.getElementById('f-kategori').value='';
+    document.getElementById('f-nominal').value='';
+    document.getElementById('f-keterangan').value='';
+    document.getElementById('f-tanggal').valueAsDate=new Date();
+
+    /* logout after short delay so user sees fireworks */
+    setTimeout(()=>{ statusDiv.style.display='none'; doLogout(); },3000);
+  })
+  .catch(err=>{
+    /* ── FAIL: stay on form ── */
+    statusDiv.textContent='❌ Gagal menyimpan: '+err.message;
+    statusDiv.className='b-status error'; statusDiv.style.display='block';
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
+    setTimeout(()=>statusDiv.style.display='none',5000);
+  });
+}
+
+   
+/* ═══════════════════════════════════════
    REALISTIC ANT ENGINE
 ═══════════════════════════════════════ */
 const ANT_SVG_TEMPLATE = `
@@ -905,67 +966,6 @@ document.getElementById('lever').addEventListener('click',()=>{
     requestAnimationFrame(()=>requestAnimationFrame(()=>budgetPage.classList.add('visible')));
   },3400);
 });
-
-
-/* ═══════════════════════════════════════
-   BUDGET FORM  –  SIMPAN TRANSAKSI
-═══════════════════════════════════════ */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
-
-function simpanTransaksi() {
-  const tanggal  = document.getElementById('f-tanggal').value;
-  const jenis    = document.getElementById('f-jenis').value;
-  const kategori = document.getElementById('f-kategori').value;
-  const nominal  = document.getElementById('f-nominal').value;
-  const keterangan = document.getElementById('f-keterangan').value;
-  const statusDiv  = document.getElementById('b-status');
-  const btn        = document.getElementById('btn-simpan');
-
-  if(!tanggal||!jenis||!kategori||!nominal){
-    statusDiv.textContent='⚠️ Lengkapi semua field yang wajib diisi.';
-    statusDiv.className='b-status error'; statusDiv.style.display='block';
-    setTimeout(()=>statusDiv.style.display='none',4000);
-    return;
-  }
-
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span> Menyimpan...';
-
-  const data={tanggal,jenis,kategori,nominal,keterangan};
-
-  fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)})
-  .then(()=>{
-    /* ── SUCCESS: fireworks then logout ── */
-    const r=btn.getBoundingClientRect();
-    launchFW(r.left+r.width/2, r.top+r.height/2);
-    setTimeout(()=>launchFW(),400);
-    setTimeout(()=>launchFW(),800);
-
-    statusDiv.textContent='✨ Transaksi berhasil dicatat!';
-    statusDiv.className='b-status success'; statusDiv.style.display='block';
-
-    btn.disabled=false;
-    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
-
-    /* clear form */
-    document.getElementById('f-jenis').value='';
-    document.getElementById('f-kategori').value='';
-    document.getElementById('f-nominal').value='';
-    document.getElementById('f-keterangan').value='';
-    document.getElementById('f-tanggal').valueAsDate=new Date();
-
-    /* logout after short delay so user sees fireworks */
-    setTimeout(()=>{ statusDiv.style.display='none'; doLogout(); },3000);
-  })
-  .catch(err=>{
-    /* ── FAIL: stay on form ── */
-    statusDiv.textContent='❌ Gagal menyimpan: '+err.message;
-    statusDiv.className='b-status error'; statusDiv.style.display='block';
-    btn.disabled=false;
-    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
-    setTimeout(()=>statusDiv.style.display='none',5000);
-  });
-}
 
 
 /* ═══════════════════════════════════════
