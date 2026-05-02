@@ -18,7 +18,8 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Lora', serif;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ══════════════════════════════════════════════
@@ -26,7 +27,7 @@ body {
 ══════════════════════════════════════════════ */
 #ant-container {
   position: fixed; inset: 0;
-  pointer-events: none; z-index: 200;
+  pointer-events: none; z-index: 1;
   overflow: hidden;
 }
 
@@ -42,7 +43,7 @@ body {
 #fireworks-canvas {
   position: fixed; top:0; left:0;
   width:100%; height:100%;
-  pointer-events: none; z-index: 190;
+  pointer-events: none; z-index: 0;
 }
 
 /* ══════════════════════════════════════════════
@@ -51,6 +52,7 @@ body {
 #login-scene {
   display: flex; flex-direction: column; align-items: center;
   transition: opacity 0.8s ease, transform 0.8s ease;
+  position: relative; z-index: 10;
 }
 #login-scene.fade-out {
   opacity: 0; transform: scale(0.93) translateY(24px);
@@ -275,6 +277,7 @@ body {
   transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
               transform 0.9s cubic-bezier(0.22,1,0.36,1);
   overflow-y: auto;
+  position: relative; z-index: 10;
 }
 #budget-page.visible { opacity:1; transform:scale(1) translateY(0); }
 
@@ -670,7 +673,9 @@ function simpanTransaksi() {
   .then(() => {
     console.log("Request POST ke Apps Script selesai.");
     
-    // Kembang api spektakuler di beberapa titik
+    // Naikkan canvas ke atas sementara agar kembang api terlihat
+    canvas.style.zIndex = '999';
+    
     const r = btn.getBoundingClientRect();
     const cx = r.left + r.width / 2;
     const cy = r.top + r.height / 2;
@@ -683,6 +688,8 @@ function simpanTransaksi() {
       setTimeout(() => launchFW(canvas.width*0.85, canvas.height*0.45), 1200);
       setTimeout(() => launchFW(canvas.width*0.5, canvas.height*0.35), 1450);
     }
+    // Kembalikan canvas ke bawah setelah animasi selesai
+    setTimeout(() => { canvas.style.zIndex = '0'; }, 4000);
 
     statusDiv.textContent = '✨ Transaksi berhasil dicatat!';
     statusDiv.className = 'b-status success';
@@ -707,7 +714,6 @@ function simpanTransaksi() {
 
     setTimeout(() => {
       statusDiv.style.display = 'none';
-      if (typeof doLogout === 'function') doLogout();
     }, 3000);
   })
   .catch(err => {
@@ -926,8 +932,7 @@ function launchFW(ox,oy) {
 
 (function animFW(){
   requestAnimationFrame(animFW);
-  ctx.fillStyle='rgba(245,201,168,0.20)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   fwParticles=fwParticles.filter(p=>p.alpha>0.02);
   fwParticles.forEach(p=>{ p.update(); p.draw(); });
 })();
@@ -1120,18 +1125,21 @@ function doLogout(){
   budgetPage.classList.remove('visible');
   setTimeout(()=>{
     budgetPage.style.display='none';
+    // Reset semua inline style kartu
     cardFlipper.removeAttribute('style');
     cardInner.removeAttribute('style');
-    loginScene.removeAttribute('style');
+    // Reset login scene
+    loginScene.style.cssText='display:flex;opacity:1;transform:none;';
     loginScene.classList.remove('fade-out');
+    // Reset lever state
     leverPulled=false;
     leverKnob.classList.remove('pulled');
     heatingBar.classList.remove('active');
+    // Reset input fields
     document.getElementById('username').value='';
     document.getElementById('password').value='';
     document.getElementById('eye-icon').innerHTML=EYE_OPEN;
     document.getElementById('password').type='password';
-    loginScene.style.display='flex';
   },700);
 }
 </script>
