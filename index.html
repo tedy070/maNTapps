@@ -530,15 +530,17 @@ body {
         <textarea class="b-textarea" id="f-keterangan" placeholder="Catat sesuai yang berkaitan contoh Tedy, Nadya, Mukena, Sajadah..."></textarea>
 
         <button class="b-submit" id="btn-simpan" onclick="simpanTransaksi()">
-          <i class="fa-solid fa-paper-plane"></i> Simpan Transaksi
+            <i class="fa-solid fa-paper-plane"></i> Simpan Transaksi
         </button>
-        <div class="b-status" id="b-status"></div>
+        
+        <div class="b-status" id="b-status" style="display: none;"></div>
       </div>
     </div>
     <p class="footer-note">© 2026 Wedding Planner Ledger</p>
   </div>
 </div>
 
+<script src="app.js"></script>  
 <!-- ══════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════ -->
@@ -546,7 +548,7 @@ body {
 /* ═══════════════════════════════════════
    BUDGET FORM  –  SIMPAN TRANSAKSI
 ═══════════════════════════════════════ */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeiNEGNtrQkGLgJOG4b09TqTx-0USu_3PeLv6-AVWXn5y311ui0W_lMByfBWkJrCGcag/exec";
 
 function simpanTransaksi() {
   const tanggal = document.getElementById('f-tanggal').value;
@@ -576,11 +578,11 @@ function simpanTransaksi() {
     keterangan
   };
 
-  console.log("Mengirim data:", data); // Cek data di console browser
+  console.log("Mengirim data:", data);
 
   fetch(WEB_APP_URL, {
     method: 'POST',
-    mode: 'no-cors', // Mode no-cors tidak akan memunculkan respons teks, hanya status sukses/gagal secara umum
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -589,9 +591,9 @@ function simpanTransaksi() {
   .then(() => {
     console.log("Request POST ke Apps Script selesai.");
     
-    // Tampilkan efek atau animasi
-    const r = btn.getBoundingClientRect();
+    // Tampilkan efek atau animasi kembang api jika ada
     if (typeof launchFW === 'function') {
+      const r = btn.getBoundingClientRect();
       launchFW(r.left + r.width / 2, r.top + r.height / 2);
       setTimeout(() => launchFW(), 400);
       setTimeout(() => launchFW(), 800);
@@ -609,8 +611,14 @@ function simpanTransaksi() {
     document.getElementById('f-kategori').value = '';
     document.getElementById('f-nominal').value = '';
     document.getElementById('f-keterangan').value = '';
+    
+    // Reset tanggal ke hari ini
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
     if (document.getElementById('f-tanggal')) {
-      document.getElementById('f-tanggal').valueAsDate = new Date();
+      document.getElementById('f-tanggal').value = `${yyyy}-${mm}-${dd}`;
     }
 
     setTimeout(() => {
