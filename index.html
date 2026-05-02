@@ -561,7 +561,7 @@ body {
         <label class="b-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
         <div class="b-input-group">
           <span class="b-prefix">Rp</span>
-          <input type="number" class="b-input" id="f-nominal" placeholder="0" inputmode="numeric" required>
+          <input type="text" class="b-input" id="f-nominal" placeholder="0" inputmode="numeric" autocomplete="off" required>
         </div>
 
         <label class="b-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
@@ -578,7 +578,6 @@ body {
   </div>
 </div>
 
-<script src="app.js"></script>  
 <!-- ══════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════ -->
@@ -588,16 +587,58 @@ body {
 ═══════════════════════════════════════ */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeiNEGNtrQkGLgJOG4b09TqTx-0USu_3PeLv6-AVWXn5y311ui0W_lMByfBWkJrCGcag/exec";
 
-function simpanTransaksi() {
-  const tanggal = document.getElementById('f-tanggal').value;
-  const jenis = document.getElementById('f-jenis').value;
-  const kategori = document.getElementById('f-kategori').value;
-  const nominal = document.getElementById('f-nominal').value;
-  const keterangan = document.getElementById('f-keterangan').value;
-  const statusDiv = document.getElementById('b-status');
-  const btn = document.getElementById('btn-simpan');
+/* ── FORMAT NOMINAL: koma ribuan otomatis ── */
+(function(){
+  const inp = document.getElementById('f-nominal');
+  if (!inp) return;
 
-  if (!tanggal || !jenis || !kategori || !nominal) {
+  function formatRibuan(raw) {
+    // Hapus semua karakter non-digit
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return '';
+    // Tambah koma setiap 3 digit dari kanan
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  inp.addEventListener('input', function() {
+    const pos = this.selectionStart;
+    const prevLen = this.value.length;
+    const formatted = formatRibuan(this.value);
+    this.value = formatted;
+    // Jaga posisi kursor
+    const diff = formatted.length - prevLen;
+    try { this.setSelectionRange(pos + diff, pos + diff); } catch(e) {}
+  });
+
+  inp.addEventListener('keydown', function(e) {
+    // Izinkan: backspace, delete, arrow, tab, home, end
+    const allowed = [8,9,13,35,36,37,38,39,40,46];
+    // Izinkan: 0-9 (keyCode 48-57), numpad 0-9 (96-105)
+    const isDigit = (e.keyCode >= 48 && e.keyCode <= 57) ||
+                    (e.keyCode >= 96 && e.keyCode <= 105);
+    if (!allowed.includes(e.keyCode) && !isDigit && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+    }
+  });
+})();
+
+function getNominalAngka() {
+  const val = document.getElementById('f-nominal').value;
+  // Strip titik pemisah ribuan lalu parse jadi angka
+  return Number(val.replace(/\./g, '')) || 0;
+}
+
+function simpanTransaksi() {
+  const tanggal    = document.getElementById('f-tanggal').value;
+  const jenis      = document.getElementById('f-jenis').value;
+  const kategori   = document.getElementById('f-kategori').value;
+  const nominalRaw = document.getElementById('f-nominal').value;
+  const nominal    = getNominalAngka();
+  const keterangan = document.getElementById('f-keterangan').value;
+  const statusDiv  = document.getElementById('b-status');
+  const btn        = document.getElementById('btn-simpan');
+
+  if (!tanggal || !jenis || !kategori || !nominalRaw || nominal <= 0) {
     statusDiv.textContent = '⚠️ Lengkapi semua field yang wajib diisi.';
     statusDiv.className = 'b-status error';
     statusDiv.style.display = 'block';
@@ -612,7 +653,7 @@ function simpanTransaksi() {
     tanggal,
     jenis,
     kategori,
-    nominal: Number(nominal),
+    nominal,   // angka bersih tanpa titik, siap masuk spreadsheet
     keterangan
   };
 
@@ -655,7 +696,6 @@ function simpanTransaksi() {
     document.getElementById('f-kategori').value = '';
     document.getElementById('f-nominal').value = '';
     document.getElementById('f-keterangan').value = '';
-    
     // Reset tanggal ke hari ini
     const today = new Date();
     const yyyy = today.getFullYear();
