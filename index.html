@@ -549,17 +549,17 @@ body {
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHRjVSJEoK4D53q9L46y36e_eL5DgwyyEKTH3i7qBLCJ-Blkbehe3ACGl5eyWMkoYyQA/exec";
 
 function simpanTransaksi() {
-  const tanggal   = document.getElementById('f-tanggal').value;
-  const jenis     = document.getElementById('f-jenis').value;
-  const kategori  = document.getElementById('f-kategori').value;
-  const nominal   = document.getElementById('f-nominal').value;
+  const tanggal = document.getElementById('f-tanggal').value;
+  const jenis = document.getElementById('f-jenis').value;
+  const kategori = document.getElementById('f-kategori').value;
+  const nominal = document.getElementById('f-nominal').value;
   const keterangan = document.getElementById('f-keterangan').value;
   const statusDiv = document.getElementById('b-status');
-  const btn       = document.getElementById('btn-simpan');
+  const btn = document.getElementById('btn-simpan');
 
   if (!tanggal || !jenis || !kategori || !nominal) {
     statusDiv.textContent = '⚠️ Lengkapi semua field yang wajib diisi.';
-    statusDiv.className = 'b-status error'; 
+    statusDiv.className = 'b-status error';
     statusDiv.style.display = 'block';
     setTimeout(() => statusDiv.style.display = 'none', 4000);
     return;
@@ -568,58 +568,64 @@ function simpanTransaksi() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
 
-  const data = { 
-    tanggal, 
-    jenis, 
-    kategori, 
-    nominal: Number(nominal), // Memastikan tipe data angka di Spreadsheet
-    keterangan 
+  const data = {
+    tanggal,
+    jenis,
+    kategori,
+    nominal: Number(nominal),
+    keterangan
   };
+
+  console.log("Mengirim data:", data); // Cek data di console browser
 
   fetch(WEB_APP_URL, {
     method: 'POST',
-    mode: 'no-cors',
+    mode: 'no-cors', // Mode no-cors tidak akan memunculkan respons teks, hanya status sukses/gagal secara umum
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
   })
   .then(() => {
-    /* ── SUCCESS: fireworks then logout ── */
+    console.log("Request POST ke Apps Script selesai.");
+    
+    // Tampilkan efek atau animasi
     const r = btn.getBoundingClientRect();
-    launchFW(r.left + r.width / 2, r.top + r.height / 2);
-    setTimeout(() => launchFW(), 400);
-    setTimeout(() => launchFW(), 800);
+    if (typeof launchFW === 'function') {
+      launchFW(r.left + r.width / 2, r.top + r.height / 2);
+      setTimeout(() => launchFW(), 400);
+      setTimeout(() => launchFW(), 800);
+    }
 
     statusDiv.textContent = '✨ Transaksi berhasil dicatat!';
-    statusDiv.className = 'b-status success'; 
+    statusDiv.className = 'b-status success';
     statusDiv.style.display = 'block';
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
 
-    /* clear form */
+    // Reset form
     document.getElementById('f-jenis').value = '';
     document.getElementById('f-kategori').value = '';
     document.getElementById('f-nominal').value = '';
     document.getElementById('f-keterangan').value = '';
-    document.getElementById('f-tanggal').valueAsDate = new Date();
+    if (document.getElementById('f-tanggal')) {
+      document.getElementById('f-tanggal').valueAsDate = new Date();
+    }
 
-    /* logout after short delay so user sees fireworks */
-    setTimeout(() => { 
-      statusDiv.style.display = 'none'; 
-      if (typeof doLogout === 'function') doLogout(); 
+    setTimeout(() => {
+      statusDiv.style.display = 'none';
+      if (typeof doLogout === 'function') doLogout();
     }, 3000);
   })
   .catch(err => {
-    /* ── FAIL: stay on form ── */
-    statusDiv.textContent = '❌ Gagal menyimpan: ' + err.message;
-    statusDiv.className = 'b-status error'; 
+    console.error("Fetch Error:", err);
+    statusDiv.textContent = '❌ Gagal mengirim: ' + err.message;
+    statusDiv.className = 'b-status error';
     statusDiv.style.display = 'block';
     
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
-    
     setTimeout(() => statusDiv.style.display = 'none', 5000);
   });
 }
