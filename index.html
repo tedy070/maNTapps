@@ -155,7 +155,17 @@ body {
 .ant-toggle-btn { margin-right: auto; }
 .ant-toggle-btn:hover, .b-logout:hover { background: #f5e0a0; transform: scale(1.04); }
 .ant-toggle-btn.ant-off { opacity: 0.55; }
-.card-back .wb-icon { font-size: 3.8rem; margin-bottom: 16px; }
+.card-back .fa-heart-circle-check {
+  font-size: 5.5rem;
+  color: #e8305a;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 4px 12px #e8305a55);
+  animation: heartPulse 1.8s ease-in-out infinite;
+}
+@keyframes heartPulse {
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.12); }
+}
 .card-back .wb-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.75rem; color: #5a3010;
@@ -470,9 +480,9 @@ body {
       <div class="toaster-body" id="toaster-body">
         <div class="toaster-left" id="toaster-left">
           <div class="create-btn-wrap">
-            <button class="create-btn" id="create-btn" title="Daftar akun baru">
-              <span class="btn-icon">✦</span>
-              <span>New<br>Account</span>
+            <button class="create-btn" id="create-btn" title="Quotes masa depan">
+              <span class="btn-icon">💫</span>
+              <span>Happy<br>Future</span>
             </button>
           </div>
         </div>
@@ -487,35 +497,18 @@ body {
         </div>
       </div>
 
-      <!-- Register card -->
+      <!-- Happy Future Quotes Card -->
       <div id="register-card">
         <button class="reg-close" id="reg-close">✕</button>
-        <h2>✦ Buat Akun</h2>
-        <div class="reg-row">
-          <input type="text" id="reg-firstname" placeholder="Nama Depan">
-          <input type="text" id="reg-lastname"  placeholder="Nama Belakang">
+        <h2>💫 Happy Future</h2>
+        <div id="quote-display" style="text-align:center;padding:8px 4px 12px;">
+          <div style="font-size:2rem;margin-bottom:10px;" id="quote-emoji">🌸</div>
+          <p style="font-family:'Playfair Display',serif;font-size:1rem;color:#5a3010;line-height:1.6;font-style:italic;margin-bottom:10px;" id="quote-text">"A beautiful future starts with a well-planned today."</p>
+          <p style="font-size:0.78rem;color:#a07040;letter-spacing:0.5px;" id="quote-attr">— Wedding Journey —</p>
         </div>
-        <input type="text"  id="reg-username" placeholder="Username" autocomplete="off">
-        <input type="email" id="reg-email"    placeholder="Alamat Email">
-        <input type="tel"   id="reg-phone"    placeholder="Nomor HP">
-        <select id="reg-dob"><option value="" disabled selected>Tanggal Lahir</option></select>
-        <div class="rpw-wrap">
-          <input type="password" id="reg-password" placeholder="Password">
-          <button class="eye-btn" id="reg-eye-btn" tabindex="-1">
-            <svg id="reg-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <div class="rpw-wrap">
-          <input type="password" id="reg-confirm" placeholder="Konfirmasi Password">
-          <button class="eye-btn" id="reg-eye-btn2" tabindex="-1">
-            <svg id="reg-eye-icon2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <button class="reg-submit" id="reg-submit">Buat Akun 🍞</button>
+        <button class="reg-submit" id="quote-next-btn" onclick="nextQuote()" style="margin-top:4px;">
+          ✨ Next Quote
+        </button>
       </div>
     </div>
   </div>
@@ -784,43 +777,6 @@ function launchFW(tx,ty) {
 
 
 /* ═══════════════════════════════════════
-   EYE TOGGLE
-═══════════════════════════════════════ */
-const EYE_OPEN   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
-const EYE_CLOSED = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
-
-function makeEyeToggle(btnId,inputId,iconId) {
-  let vis=false;
-  document.getElementById(btnId).addEventListener('click',()=>{
-    vis=!vis;
-    document.getElementById(inputId).type=vis?'text':'password';
-    document.getElementById(iconId).innerHTML=vis?EYE_CLOSED:EYE_OPEN;
-  });
-}
-/* makeEyeToggle for main eye-btn removed — input is hidden */
-makeEyeToggle('reg-eye-btn','reg-password','reg-eye-icon');
-makeEyeToggle('reg-eye-btn2','reg-confirm','reg-eye-icon2');
-
-
-/* ═══════════════════════════════════════
-   REGISTER DOB
-═══════════════════════════════════════ */
-(function(){
-  const sel=document.getElementById('reg-dob');
-  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const yr=new Date().getFullYear();
-  for(let y=yr;y>=1930;y--){
-    for(let m=0;m<12;m++){
-      const o=document.createElement('option');
-      o.value=`${y}-${String(m+1).padStart(2,'0')}`;
-      o.textContent=`${months[m]} ${y}`;
-      sel.appendChild(o);
-    }
-  }
-})();
-
-
-/* ═══════════════════════════════════════
    CRACK ANIMATION
 ═══════════════════════════════════════ */
 function animateCrack() {
@@ -863,6 +819,43 @@ function spawnCrumbs(cx,cy){
   }
 }
 
+/* ═══════════════════════════════════════
+   HAPPY FUTURE QUOTES
+═══════════════════════════════════════ */
+const QUOTES = [
+  { text:'"A beautiful future starts with a well-planned today."', attr:'— Wedding Journey —' },
+  { text:'"The best thing to hold onto in life is each other."', attr:'— Audrey Hepburn —' },
+  { text:'"A great marriage is not when the \'perfect couple\' comes together, it is when an imperfect couple learns to enjoy their differences."', attr:'— Dave Meurer —' },
+  { text:'"Two people who love each other build a house, not just from bricks, but from shared dreams."', attr:'— Anonim —' },
+  { text:'"Every love story is beautiful, but ours is my favorite."', attr:'— Anonim —' },
+  { text:'"Marriage is not the end of the journey, but the beginning of the most beautiful adventure."', attr:'— Anonim —' },
+  { text:'"True love is not about finding someone perfect, but about seeing an imperfect person in a perfect way."', attr:'— Sam Keen —' },
+  { text:'"In all the world, there is no heart for me like yours. In all the world, there is no love for you like mine."', attr:'— Maya Angelou —' },
+  { text:'"A happy household is built not from wealth, but from sincerity of heart."', attr:'— Anonim —' },
+  { text:'"Marriage is a covenant between two souls to grow together, strengthening each other in every season of life."', attr:'— Anonim —' },
+];
+let quoteIdx = Math.floor(Math.random() * QUOTES.length);
+
+function showQuote(idx) {
+  const q = QUOTES[idx];
+  document.getElementById('quote-emoji').textContent = q.emoji;
+  document.getElementById('quote-text').textContent  = q.text;
+  document.getElementById('quote-attr').textContent  = q.attr;
+}
+
+function nextQuote() {
+  quoteIdx = (quoteIdx + 1) % QUOTES.length;
+  const display = document.getElementById('quote-display');
+  display.style.opacity = '0';
+  display.style.transform = 'translateY(8px)';
+  display.style.transition = 'opacity .25s ease, transform .25s ease';
+  setTimeout(()=>{
+    showQuote(quoteIdx);
+    display.style.opacity = '1';
+    display.style.transform = 'translateY(0)';
+  }, 250);
+}
+
 let crackBusy=false, registerOpen=false;
 
 document.getElementById('create-btn').addEventListener('click',()=>{
@@ -871,6 +864,10 @@ document.getElementById('create-btn').addEventListener('click',()=>{
   const tL=document.getElementById('toaster-left');
   const tR=document.getElementById('toaster-right');
   const reg=document.getElementById('register-card');
+
+  // Tampilkan quote random saat dibuka
+  quoteIdx = Math.floor(Math.random() * QUOTES.length);
+  showQuote(quoteIdx);
 
   body.classList.add('shaking');
   setTimeout(()=>body.classList.remove('shaking'),450);
@@ -901,20 +898,6 @@ function closeRegister(){
   },600);
 }
 document.getElementById('reg-close').addEventListener('click',closeRegister);
-
-document.getElementById('reg-submit').addEventListener('click',()=>{
-  const u=document.getElementById('reg-username').value.trim();
-  const e=document.getElementById('reg-email').value.trim();
-  const p=document.getElementById('reg-password').value;
-  const c=document.getElementById('reg-confirm').value;
-  if(!u){alert('Masukkan username!');return;}
-  if(!e){alert('Masukkan email!');return;}
-  if(p!==c){alert('Password tidak cocok!');return;}
-  if(p.length<6){alert('Password minimal 6 karakter!');return;}
-  alert(`🎉 Akun "${u}" berhasil dibuat!\nSilakan login.`);
-  document.getElementById('username').value=u;
-  closeRegister();
-});
 
 
 /* ═══════════════════════════════════════
@@ -987,10 +970,11 @@ nominalDisplay.addEventListener('keydown', e => {
 /* ═══════════════════════════════════════
    ANT ON/OFF TOGGLE
 ═══════════════════════════════════════ */
-let antActive = true;
+let antActive = localStorage.getItem('wb_ant_active') !== 'false'; // default ON, kecuali pernah di-off
 
 function toggleAnts() {
   antActive = !antActive;
+  localStorage.setItem('wb_ant_active', antActive); // simpan ke localStorage
   const btn = document.getElementById('ant-toggle-btn');
   const container = document.getElementById('ant-container');
   if (antActive) {
@@ -1003,6 +987,16 @@ function toggleAnts() {
     btn.classList.add('ant-off');
   }
 }
+
+// Terapkan state tersimpan saat pertama load
+(function applyAntState(){
+  const btn = document.getElementById('ant-toggle-btn');
+  const container = document.getElementById('ant-container');
+  if (!antActive) {
+    container.style.display = 'none';
+    if(btn){ btn.textContent = '🐜 Ant OFF'; btn.classList.add('ant-off'); }
+  }
+})();
 
 
 /* ═══════════════════════════════════════
@@ -1053,8 +1047,8 @@ function simpanTransaksi() {
     document.getElementById('f-keterangan').value='';
     document.getElementById('f-tanggal').valueAsDate=new Date();
 
-    /* logout after delay */
-    setTimeout(()=>{ statusDiv.style.display='none'; doLogout(); },3000);
+    /* stay on form — just hide status after 3s */
+    setTimeout(()=>{ statusDiv.style.display='none'; }, 3000);
   })
   .catch(err=>{
     /* ── FAIL: stay on form ── */
