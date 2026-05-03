@@ -1,1029 +1,342 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Input Budgeting 🍞</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-/* ══════════════════════════════════════════════
-   BASE
-══════════════════════════════════════════════ */
-body {
-  background: #f5c9a8;
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  font-family: 'Lora', serif;
+  <style>
+    body { 
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      padding: 15px 0;
+    }
+    .form-container { 
+      background: white; 
+      padding: 30px 20px; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+      border: 1px solid rgba(255,255,255,0.3);
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .header-title {
+      color: #4a4a4a;
+      font-weight: 600;
+      margin-bottom: 25px;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+    .form-label i {
+      margin-right: 8px;
+      color: #6c5ce7;
+    }
+    .form-control, .form-select, .input-group-text {
+      border-radius: 12px !important;
+      padding: 14px; 
+      font-size: 16px !important; 
+      border: 1px solid #ced4da;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #6c5ce7;
+      box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.1);
+    }
+    .btn-submit {
+      background: linear-gradient(to right, #6c5ce7, #a29bfe);
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+      color: white;
+    }
+    .btn-submit:active { transform: scale(0.98); }
+    #status {
+      border-radius: 12px;
+      padding: 15px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-top: 20px;
+    }
+    @media (max-width: 576px) {
+      .container { padding-left: 10px; padding-right: 10px; }
+      .form-container { padding: 25px 15px; }
+    }
+    /* CONTAINER UNTUK JALUR SEMUT */
+#ant-invasion-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* Agar tidak menghalangi klik button aplikasi */
+  z-index: 100; /* Paling atas */
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
 }
 
-/* ══════════════════════════════════════════════
-   REALISTIC ANT
-══════════════════════════════════════════════ */
-#ant-container {
-  position: fixed; inset: 0;
-  pointer-events: none; z-index: 200;
-  overflow: hidden;
-}
-
-.ant-svg {
+/* GAMBAR SEMUT (SVG) */
+.ant {
+  width: 16px; /* Ukuran semut kecil */
+  height: 16px;
   position: absolute;
-  width: 28px; height: 28px;
-  will-change: transform;
+  /* Warna Semut: Hitam agar terlihat di atas Glassmorphism */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="40" ry="20" fill="black"/><ellipse cx="20" cy="50" rx="15" ry="10" fill="black"/><ellipse cx="80" cy="50" rx="15" ry="10" fill="black"/><line x1="10" y1="20" x2="30" y2="40" stroke="black" stroke-width="5"/><line x1="90" y1="20" x2="70" y2="40" stroke="black" stroke-width="5"/><line x1="10" y1="80" x2="30" y2="60" stroke="black" stroke-width="5"/><line x1="90" y1="80" x2="70" y2="60" stroke="black" stroke-width="5"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  
+  /* Logika Pergerakan */
+  offset-path: path('M -20 50 Q 50 -20, 120 50 T 260 50'); /* Jalur acak dari kiri ke kanan */
+  offset-rotate: auto;
+  animation: ant-march-real 10s linear infinite;
 }
 
-/* ══════════════════════════════════════════════
-   FIREWORKS CANVAS
-══════════════════════════════════════════════ */
-#fireworks-canvas {
-  position: fixed; top:0; left:0;
-  width:100%; height:100%;
-  pointer-events: none; z-index: 190;
-}
+/* Jeda Waktu Berjalan untuk Masing-masing Semut */
+.ant:nth-child(1) { animation-delay: 0s; }
+.ant:nth-child(2) { animation-delay: 2s; }
+.ant:nth-child(3) { animation-delay: 4s; }
+.ant:nth-child(4) { animation-delay: 6s; }
 
-/* ══════════════════════════════════════════════
-   LOGIN SCENE
-══════════════════════════════════════════════ */
-#login-scene {
-  display: flex; flex-direction: column; align-items: center;
-  transition: opacity 0.8s ease, transform 0.8s ease;
+/* ANIMASI GERAK */
+@keyframes ant-march-real {
+  0% { offset-distance: 0%; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
 }
-#login-scene.fade-out {
-  opacity: 0; transform: scale(0.93) translateY(24px);
-  pointer-events: none;
-}
-
-.login-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.4rem; color: #2a1a0e;
-  margin-bottom: 18px; letter-spacing: -1px;
-  text-align: center; line-height: 1.2;
-}
-
-.scene {
-  display: flex; flex-direction: column;
-  align-items: center; position: relative;
-}
-
-/* ── LOGIN CARD ── */
-.card-flipper {
-  width: 280px; height: 220px;
-  position: relative; z-index: 5;
-  perspective: 1000px; margin-bottom: -10px;
-}
-.card-inner {
-  width: 100%; height: 100%;
-  position: relative; transform-style: preserve-3d;
-}
-.card-front, .card-back {
-  position: absolute; inset: 0;
-  border-radius: 20px 20px 12px 12px;
-  border: 5px solid #c89a5a; background: #fdf3d4;
-  backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 22px 26px 18px;
-  box-shadow: 0 6px 28px #a0723850;
-}
-.card-back {
-  transform: rotateY(180deg);
-  background: linear-gradient(150deg, #fdf3d4 55%, #f5e5a8);
-}
-.card-front h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.35rem; color: #3a2010; margin-bottom: 15px;
-}
-.card-front input {
-  width: 100%; padding: 9px 13px; border-radius: 10px;
-  border: 1.5px solid #d4b07a; background: #fffbe8;
-  font-family: 'Lora', serif; font-size: 0.9rem; color: #3a2010;
-  margin-bottom: 10px; outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.card-front input:focus { border-color: #c07b3a; box-shadow: 0 0 0 3px #c07b3a1a; }
-.pw-wrap { position: relative; width: 100%; margin-bottom: 10px; }
-.pw-wrap input { margin-bottom: 0; padding-right: 38px; width: 100%; }
-.eye-btn {
-  position: absolute; right: 10px; top: 50%;
-  transform: translateY(-50%);
-  background: none; border: none; cursor: pointer;
-  color: #b08060; display: flex; align-items: center;
-  padding: 0; transition: color 0.2s;
-}
-.eye-btn:hover { color: #c07b3a; }
-.hint { font-size: 0.74rem; color: #b08060; font-style: italic; margin-top: 2px; }
-.card-back .wb-icon { font-size: 3.2rem; margin-bottom: 14px; }
-.card-back .wb-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.55rem; color: #5a3010;
-  text-align: center; line-height: 1.3;
-}
-.card-back .wb-sub {
-  font-size: 0.82rem; color: #a07040;
-  margin-top: 8px; font-style: italic; text-align: center;
-}
-
-/* ── TOASTER BODY ── */
-.toaster-wrap { position: relative; width: 320px; z-index: 10; }
-.toaster-body { width: 100%; height: 115px; position: relative; }
-.toaster-left, .toaster-right {
-  position: absolute; top: 0; height: 100%;
-  background: linear-gradient(175deg, #b8d4ee 0%, #8ab4d4 100%);
-  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
-  overflow: hidden;
-}
-.toaster-left  { left:0; width:50%; border-radius:16px 0 0 22px; box-shadow:-4px 8px 20px #5070a040,inset 2px 2px 8px #ffffff70; }
-.toaster-right { right:0; width:50%; border-radius:0 16px 22px 0; box-shadow:4px 8px 20px #5070a040,inset -2px 2px 8px #ffffff70; }
-.toaster-slot {
-  position: absolute; top:-9px; left:50%; transform:translateX(-50%);
-  width:210px; height:15px; background:#1e1208;
-  border-radius:8px 8px 0 0; z-index:12; pointer-events:none;
-}
-.crack-overlay {
-  position: absolute; top:0; left:50%; transform:translateX(-50%);
-  width:40px; height:115px; z-index:15; pointer-events:none;
-  opacity:0; transition:opacity 0.2s;
-}
-.crack-overlay.visible { opacity:1; }
-.heating-bar {
-  position: absolute; top:-3px; left:50%; transform:translateX(-50%);
-  width:210px; height:6px; background:transparent;
-  border-radius:0 0 5px 5px;
-  transition: background 0.5s, box-shadow 0.5s; z-index:13;
-}
-.heating-bar.active { background:#e84010; box-shadow:0 0 20px 5px #e8401085; }
-.toaster-left.split  { transform:translateX(-62px) rotate(-3deg); opacity:0.7; }
-.toaster-right.split { transform:translateX( 62px) rotate( 3deg); opacity:0.7; }
-@keyframes shake {
-  0%,100%{ transform:translateX(0) rotate(0deg); }
-  15%{ transform:translateX(-4px) rotate(-1deg); }
-  30%{ transform:translateX(5px) rotate(1.5deg); }
-  45%{ transform:translateX(-5px) rotate(-1.5deg); }
-  60%{ transform:translateX(4px) rotate(1deg); }
-  75%{ transform:translateX(-3px) rotate(-0.5deg); }
-}
-.toaster-body.shaking { animation:shake 0.45s ease; }
-
-/* ── CREATE BTN ── */
-.create-btn-wrap { position:absolute; left:12px; top:50%; transform:translateY(-50%); z-index:20; }
-.create-btn {
-  width:56px; height:56px;
-  background:linear-gradient(145deg,#fdf3d4,#f0d898);
-  border:2.5px solid #c89a5a; border-radius:11px;
-  cursor:pointer; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:3px;
-  box-shadow:0 4px 12px #a0723850,inset 0 1px 3px #ffffff90;
-  transition:transform 0.15s, box-shadow 0.15s;
-  font-family:'Lora',serif; font-size:0.52rem; color:#7a4a10;
-  text-align:center; line-height:1.2;
-}
-.create-btn:hover { transform:translateY(-2px); box-shadow:0 7px 18px #a0723870; }
-.create-btn:active { transform:translateY(1px); }
-.create-btn .btn-icon { font-size:1.15rem; line-height:1; }
-
-/* ── LEVER ── */
-.lever-wrap {
-  position:absolute; right:26px; top:8px;
-  display:flex; flex-direction:column; align-items:center;
-  z-index:20; cursor:pointer; user-select:none;
-}
-.lever-label { font-family:'Lora',serif; font-size:0.6rem; font-weight:600; color:#1e1208; letter-spacing:1px; }
-.lever-label.top { margin-bottom:3px; }
-.lever-label.bot { margin-top:3px; }
-.lever-track { width:5px; height:70px; background:#1e1208; border-radius:4px; position:relative; }
-.lever-knob {
-  width:24px; height:24px;
-  background:radial-gradient(circle at 35% 30%,#ff7070,#bb1818);
-  border-radius:50%; border:3px solid #880000;
-  position:absolute; left:50%; transform:translateX(-50%);
-  top:0; box-shadow:0 3px 10px #bb181870;
-  transition:top 0.55s cubic-bezier(0.34,1.56,0.64,1); cursor:grab;
-}
-.lever-knob.pulled { top:46px; }
-
-/* ── REGISTER CARD ── */
-#register-card {
-  position:absolute;
-  left:50%; transform:translateX(-50%) translateY(40px) scale(0.85);
-  top:0; width:290px;
-  background:#fdf3d4; border:5px solid #c89a5a; border-radius:20px;
-  padding:26px 26px 22px; box-shadow:0 8px 36px #a0723870;
-  z-index:50; opacity:0; pointer-events:none;
-  transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
-  overflow-y: auto; max-height: 460px;
-}
-#register-card.open {
-  opacity:1; pointer-events:all;
-  transform:translateX(-50%) translateY(-300px) scale(1);
-}
-#register-card h2 { font-family:'Playfair Display',serif; font-size:1.2rem; color:#3a2010; text-align:center; margin-bottom:14px; }
-#register-card .reg-row { display:flex; gap:8px; margin-bottom:10px; }
-#register-card input, #register-card select {
-  width:100%; padding:8px 12px; border-radius:10px;
-  border:1.5px solid #d4b07a; background:#fffbe8;
-  font-family:'Lora',serif; font-size:0.85rem; color:#3a2010;
-  margin-bottom:10px; outline:none;
-  transition:border-color 0.2s, box-shadow 0.2s; appearance:none;
-}
-#register-card input:focus, #register-card select:focus { border-color:#c07b3a; box-shadow:0 0 0 3px #c07b3a18; }
-#register-card .reg-row input { margin-bottom:0; }
-#register-card .rpw-wrap { position:relative; margin-bottom:10px; }
-#register-card .rpw-wrap input { margin-bottom:0; padding-right:36px; width:100%; }
-#register-card .reg-submit {
-  width:100%; padding:10px;
-  background:linear-gradient(135deg,#d4a060,#a07030);
-  color:#fdf3d4; border:none; border-radius:11px;
-  font-family:'Playfair Display',serif; font-size:0.95rem;
-  cursor:pointer; margin-top:4px; box-shadow:0 4px 14px #a0723850;
-  transition:transform 0.15s, box-shadow 0.15s;
-}
-#register-card .reg-submit:hover { transform:translateY(-2px); box-shadow:0 8px 20px #a0723870; }
-#register-card .reg-close {
-  position:absolute; top:11px; right:14px;
-  background:none; border:none; cursor:pointer; font-size:1.1rem; color:#b08060;
-}
-#register-card .reg-close:hover { color:#c07b3a; }
-
-/* ══════════════════════════════════════════════
-   BUDGET PAGE  (replaces old "home page")
-══════════════════════════════════════════════ */
-#budget-page {
-  display: none; opacity: 0;
-  width: 100%; min-height: 100vh;
-  align-items: flex-start; justify-content: center;
-  padding: 18px 12px 30px;
-  transform: scale(0.9) translateY(30px);
-  transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
-              transform 0.9s cubic-bezier(0.22,1,0.36,1);
-  overflow-y: auto;
-}
-#budget-page.visible { opacity:1; transform:scale(1) translateY(0); }
-
-.budget-card {
-  background: #fdf3d4;
-  border: 4px solid #c89a5a;
-  border-radius: 20px;
-  padding: 28px 22px 24px;
-  width: 100%; max-width: 480px;
-  margin: 0 auto;
-  box-shadow: 0 10px 32px #a0723840;
-}
-
-.budget-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem; color: #3a2010;
-  text-align: center; margin-bottom: 22px;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-
-/* form labels */
-.b-label {
-  display: block;
-  font-family: 'Lora', serif; font-weight: 600;
-  color: #5a3010; font-size: 0.88rem;
-  margin-bottom: 6px;
-}
-.b-label i { margin-right: 6px; color: #c07b3a; }
-
-/* inputs */
-.b-input, .b-select, .b-textarea {
-  width: 100%; padding: 11px 14px;
-  border-radius: 12px; border: 1.5px solid #d4b07a;
-  background: #fffbe8; font-family: 'Lora', serif;
-  font-size: 0.92rem; color: #3a2010;
-  margin-bottom: 14px; outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none;
-}
-.b-input:focus, .b-select:focus, .b-textarea:focus {
-  border-color: #c07b3a; box-shadow: 0 0 0 3px #c07b3a1a;
-}
-.b-textarea { resize: vertical; min-height: 68px; }
-
-/* input group rp */
-.b-input-group { position: relative; margin-bottom: 14px; }
-.b-input-group .b-prefix {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 44px; display: flex; align-items: center; justify-content: center;
-  font-family: 'Lora', serif; font-weight: 600; color: #a07030;
-  background: #f5e0a0; border-radius: 12px 0 0 12px;
-  border: 1.5px solid #d4b07a; border-right: none;
-  font-size: 0.9rem;
-}
-.b-input-group .b-input { padding-left: 54px; margin-bottom: 0; }
-
-/* submit button */
-.b-submit {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, #d4a060, #a07030);
-  color: #fdf3d4; border: none; border-radius: 13px;
-  font-family: 'Playfair Display', serif; font-size: 1.05rem;
-  cursor: pointer; margin-top: 6px;
-  box-shadow: 0 5px 16px #a0723855;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.b-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px #a0723870; }
-.b-submit:active { transform: scale(0.98); }
-.b-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-/* status */
-.b-status {
-  border-radius: 12px; padding: 12px 16px;
-  font-family: 'Lora', serif; font-weight: 500; font-size: 0.9rem;
-  margin-top: 16px; display: none; text-align: center;
-}
-.b-status.success { background: #e8f5e0; border: 1.5px solid #7ac05a; color: #3a6020; }
-.b-status.error   { background: #fde8e8; border: 1.5px solid #e07060; color: #7a1a10; }
-
-/* logout btn top right */
-.b-logout {
-  position: absolute; top: 14px; right: 14px;
-  background: none; border: 1.5px solid #c89a5a;
-  border-radius: 8px; padding: 5px 12px;
-  font-family: 'Lora', serif; font-size: 0.78rem; color: #7a4a10;
-  cursor: pointer; transition: background 0.15s;
-}
-.b-logout:hover { background: #f5e0a0; }
-
-.budget-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
-.footer-note { text-align: center; margin-top: 14px; font-size: 0.75rem; color: #b08060; }
-
-/* ── CRUMBS ── */
-.crumb {
-  position: fixed; border-radius: 3px;
-  pointer-events: none; z-index: 999;
-  animation: crumbFly var(--dur) ease-out forwards;
-}
-@keyframes crumbFly {
-  0%   { transform:translate(0,0) rotate(0deg); opacity:1; }
-  100% { transform:translate(var(--tx),var(--ty)) rotate(var(--rot)); opacity:0; }
-}
-
-/* spinner */
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner { display:inline-block; width:16px; height:16px; border:2px solid #fdf3d4cc; border-top-color:#fdf3d4; border-radius:50%; animation:spin 0.7s linear infinite; }
-</style>
+  </style>
 </head>
 <body>
+  <div id="ant-invasion-container">
+  <div class="ant"></div>
+</div>
 
-<!-- ══ ANT CONTAINER ══ -->
-<div id="ant-container"></div>
-
-<!-- ══ FIREWORKS ══ -->
-<canvas id="fireworks-canvas"></canvas>
-
-<!-- ══════════════ LOGIN SCENE ══════════════ -->
-<div id="login-scene">
-  <p class="login-title">🍞 Input<br>Budgeting</p>
-
-  <div class="scene" id="scene">
-    <!-- Login card flipper -->
-    <div class="card-flipper" id="card-flipper">
-      <div class="card-inner" id="card-inner">
-        <div class="card-front">
-          <h2>Log In</h2>
-          <input type="text" id="username" placeholder="Username" autocomplete="off">
-          <div class="pw-wrap">
-            <input type="password" id="password" placeholder="Password">
-            <button class="eye-btn" id="eye-btn" tabindex="-1">
-              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-          </div>
-          <p class="hint">Pull lever to submit</p>
-        </div>
-        <div class="card-back">
-          <div class="wb-icon">🍞</div>
-          <p class="wb-title">Selamat<br>Datang!</p>
-          <p class="wb-sub">Loading budgeting... ✨</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Toaster -->
-    <div class="toaster-wrap" id="toaster-wrap">
-      <div class="toaster-slot"></div>
-      <div class="heating-bar" id="heating-bar"></div>
-
-      <!-- crack SVG -->
-      <div class="crack-overlay" id="crack-overlay">
-        <svg width="40" height="115" viewBox="0 0 40 115" fill="none">
-          <path d="M20 0 L23 18 L16 32 L24 50 L15 68 L22 85 L18 100 L20 115"
-                stroke="#1e1208" stroke-width="2.5" stroke-linecap="round"
-                stroke-dasharray="200" stroke-dashoffset="200" id="crack-path"/>
-          <path d="M20 30 L30 38 L25 45" stroke="#1e1208" stroke-width="1.5" stroke-linecap="round"
-                stroke-dasharray="50" stroke-dashoffset="50" id="crack-branch1"/>
-          <path d="M20 60 L10 70 L14 78" stroke="#1e1208" stroke-width="1.5" stroke-linecap="round"
-                stroke-dasharray="50" stroke-dashoffset="50" id="crack-branch2"/>
-        </svg>
-      </div>
-
-      <div class="toaster-body" id="toaster-body">
-        <div class="toaster-left" id="toaster-left">
-          <div class="create-btn-wrap">
-            <button class="create-btn" id="create-btn" title="Daftar akun baru">
-              <span class="btn-icon">✦</span>
-              <span>New<br>Account</span>
-            </button>
-          </div>
-        </div>
-        <div class="toaster-right" id="toaster-right">
-          <div class="lever-wrap" id="lever">
-            <span class="lever-label top">OFF</span>
-            <div class="lever-track">
-              <div class="lever-knob" id="lever-knob"></div>
+  <canvas id="fireworks-canvas" 
+        style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99;">
+</canvas>
+  
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="form-container">
+          <h3 class="text-center header-title">
+            <i class="fa-solid fa-heart-circle-check text-danger me-2"></i>Wedding Budgeting
+          </h3>
+          
+          <form id="financeForm">
+            <div class="mb-3">
+              <label class="form-label"><i class="fa-solid fa-calendar-days"></i>Tanggal</label>
+              <input type="date" class="form-control" name="tanggal" id="tanggalInput" required>
             </div>
-            <span class="lever-label bot">ON</span>
-          </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="fa-solid fa-arrow-right-arrow-left"></i>Jenis Transaksi</label>
+              <select class="form-select" name="jenis" required>
+                <option value="" disabled selected>Pilih Jenis Transaksi...</option>
+                <option value="Income">Income (Pemasukan)</option>
+                <option value="Expenses">Expenses (Pengeluaran)</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="fa-solid fa-tag"></i>Kategori</label>
+              <select class="form-select" name="kategori" required>
+                <option value="" disabled selected>Pilih Kategori...</option>
+                <optgroup label="Pemasukan">
+                  <option value="Tabungan">Tabungan</option>
+                  <option value="Bonus">Bonus</option>
+                </optgroup>
+                <optgroup label="Pengeluaran">
+                  <option value="Administrasi Persiapan Pernikahan">Administrasi Persiapan</option>
+                  <option value="Prayer Sett">Prayer Set</option>
+                  <option value="Toiletries">Toiletries</option>
+                  <option value="Skincare/Make Up">Skincare & Make Up</option>
+                  <option value="Clothes">Clothes</option>
+                  <option value="Mahar/Souvenir">Mahar & Souvenir</option>
+                  <option value="Invitation">Invitation</option>
+                  <option value="Lain-Lain">Lain-Lain</option>
+                </optgroup>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">Rp</span>
+                <input type="number" class="form-control" name="nominal" placeholder="0" inputmode="numeric" required>
+              </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
+                <textarea class="form-control" name="keterangan" rows="2" placeholder="Catat sesuai yang berkaitan contoh Tedy,Nadya,Mukena,Sajadah..."></textarea>
+              </div>
+
+            <button type="submit" class="btn btn-primary btn-submit w-100">
+              <i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi
+            </button>
+          </form>
+
+          <div id="status" class="mt-3 text-center alert" style="display:none;"></div>
         </div>
-      </div>
-
-      <!-- Register card -->
-      <div id="register-card">
-        <button class="reg-close" id="reg-close">✕</button>
-        <h2>✦ Buat Akun</h2>
-        <div class="reg-row">
-          <input type="text" id="reg-firstname" placeholder="Nama Depan">
-          <input type="text" id="reg-lastname"  placeholder="Nama Belakang">
-        </div>
-        <input type="text"  id="reg-username" placeholder="Username" autocomplete="off">
-        <input type="email" id="reg-email"    placeholder="Alamat Email">
-        <input type="tel"   id="reg-phone"    placeholder="Nomor HP">
-        <select id="reg-dob"><option value="" disabled selected>Tanggal Lahir</option></select>
-        <div class="rpw-wrap">
-          <input type="password" id="reg-password" placeholder="Password">
-          <button class="eye-btn" id="reg-eye-btn" tabindex="-1">
-            <svg id="reg-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <div class="rpw-wrap">
-          <input type="password" id="reg-confirm" placeholder="Konfirmasi Password">
-          <button class="eye-btn" id="reg-eye-btn2" tabindex="-1">
-            <svg id="reg-eye-icon2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <button class="reg-submit" id="reg-submit">Buat Akun 🍞</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ BUDGET PAGE ══════════════ -->
-<div id="budget-page">
-  <div class="budget-wrap">
-    <button class="b-logout" onclick="doLogout()">⬅ Logout</button>
-    <div class="budget-card">
-      <div class="budget-title">
-        <i class="fa-solid fa-heart-circle-check" style="color:#c07b3a;"></i>
-        Wedding Budgeting
-      </div>
-
-      <!-- FORM -->
-      <div>
-        <label class="b-label"><i class="fa-solid fa-calendar-days"></i>Tanggal</label>
-        <input type="date" class="b-input" id="f-tanggal" required>
-
-        <label class="b-label"><i class="fa-solid fa-arrow-right-arrow-left"></i>Jenis Transaksi</label>
-        <select class="b-select" id="f-jenis" required>
-          <option value="" disabled selected>Pilih Jenis Transaksi...</option>
-          <option value="Income">Income (Pemasukan)</option>
-          <option value="Expenses">Expenses (Pengeluaran)</option>
-        </select>
-
-        <label class="b-label"><i class="fa-solid fa-tag"></i>Kategori</label>
-        <select class="b-select" id="f-kategori" required>
-          <option value="" disabled selected>Pilih Kategori...</option>
-          <optgroup label="Pemasukan">
-            <option value="Tabungan">Tabungan</option>
-            <option value="Bonus">Bonus</option>
-          </optgroup>
-          <optgroup label="Pengeluaran">
-            <option value="Administrasi Persiapan Pernikahan">Administrasi Persiapan</option>
-            <option value="Prayer Sett">Prayer Set</option>
-            <option value="Toiletries">Toiletries</option>
-            <option value="Skincare/Make Up">Skincare &amp; Make Up</option>
-            <option value="Clothes">Clothes</option>
-            <option value="Mahar/Souvenir">Mahar &amp; Souvenir</option>
-            <option value="Invitation">Invitation</option>
-            <option value="Lain-Lain">Lain-Lain</option>
-          </optgroup>
-          <option value="Lainnya">Lainnya</option>
-        </select>
-
-        <label class="b-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
-        <div class="b-input-group">
-          <span class="b-prefix">Rp</span>
-          <input type="number" class="b-input" id="f-nominal" placeholder="0" inputmode="numeric" required>
-        </div>
-
-        <label class="b-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
-        <textarea class="b-textarea" id="f-keterangan" placeholder="Catat sesuai yang berkaitan contoh Tedy, Nadya, Mukena, Sajadah..."></textarea>
-
-        <button class="b-submit" id="btn-simpan" onclick="simpanTransaksi()">
-            <i class="fa-solid fa-paper-plane"></i> Simpan Transaksi
-        </button>
         
-        <div class="b-status" id="b-status" style="display: none;"></div>
+        <p class="text-center mt-3 text-muted" style="font-size: 0.8rem;">
+          &copy; 2026 Wedding Planner Ledger
+        </p>
       </div>
     </div>
-    <p class="footer-note">© 2026 Wedding Planner Ledger</p>
   </div>
-</div>
 
-<script src="app.js"></script>  
-<!-- ══════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════ -->
-<script>
-/* ═══════════════════════════════════════
-   BUDGET FORM  –  SIMPAN TRANSAKSI
-═══════════════════════════════════════ */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeiNEGNtrQkGLgJOG4b09TqTx-0USu_3PeLv6-AVWXn5y311ui0W_lMByfBWkJrCGcag/exec";
+  <script>
+  // 1. Inisialisasi URL dan Canvas (Lakukan di awal agar tidak undefined)
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwyQewJ0iatvs7qm4aYCnrf9WZqCcthS4p23A24pNMU02hW28fOGpyLvMm3kvtdgkRc6Q/exec";
+  const canvas = document.getElementById('fireworks-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
 
-function simpanTransaksi() {
-  const tanggal = document.getElementById('f-tanggal').value;
-  const jenis = document.getElementById('f-jenis').value;
-  const kategori = document.getElementById('f-kategori').value;
-  const nominal = document.getElementById('f-nominal').value;
-  const keterangan = document.getElementById('f-keterangan').value;
-  const statusDiv = document.getElementById('b-status');
-  const btn = document.getElementById('btn-simpan');
-
-  if (!tanggal || !jenis || !kategori || !nominal) {
-    statusDiv.textContent = '⚠️ Lengkapi semua field yang wajib diisi.';
-    statusDiv.className = 'b-status error';
-    statusDiv.style.display = 'block';
-    setTimeout(() => statusDiv.style.display = 'none', 4000);
-    return;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
-
-  const data = {
-    tanggal,
-    jenis,
-    kategori,
-    nominal: Number(nominal),
-    keterangan
-  };
-
-  console.log("Mengirim data:", data);
-
-  fetch(WEB_APP_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    console.log("Request POST ke Apps Script selesai.");
-    
-    // Tampilkan efek atau animasi kembang api jika ada
-    if (typeof launchFW === 'function') {
-      const r = btn.getBoundingClientRect();
-      launchFW(r.left + r.width / 2, r.top + r.height / 2);
-      setTimeout(() => launchFW(), 400);
-      setTimeout(() => launchFW(), 800);
+  // 2. Class Particle (Logika per partikel)
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.velocity = {
+        x: (Math.random() - 0.5) * (Math.random() * 12),
+        y: (Math.random() - 0.5) * (Math.random() * 12)
+      };
+      this.alpha = 1;
+      this.friction = 0.96;
+      this.gravity = 0.15;
     }
 
-    statusDiv.textContent = '✨ Transaksi berhasil dicatat!';
-    statusDiv.className = 'b-status success';
-    statusDiv.style.display = 'block';
-
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
-
-    // Reset form
-    document.getElementById('f-jenis').value = '';
-    document.getElementById('f-kategori').value = '';
-    document.getElementById('f-nominal').value = '';
-    document.getElementById('f-keterangan').value = '';
-    
-    // Reset tanggal ke hari ini
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    if (document.getElementById('f-tanggal')) {
-      document.getElementById('f-tanggal').value = `${yyyy}-${mm}-${dd}`;
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = this.color;
+      ctx.fill();
+      ctx.restore();
     }
 
-    setTimeout(() => {
-      statusDiv.style.display = 'none';
-      if (typeof doLogout === 'function') doLogout();
-    }, 3000);
-  })
-  .catch(err => {
-    console.error("Fetch Error:", err);
-    statusDiv.textContent = '❌ Gagal mengirim: ' + err.message;
-    statusDiv.className = 'b-status error';
-    statusDiv.style.display = 'block';
-    
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Simpan Transaksi';
-    setTimeout(() => statusDiv.style.display = 'none', 5000);
-  });
-}
-
-   
-/* ═══════════════════════════════════════
-   REALISTIC ANT ENGINE
-═══════════════════════════════════════ */
-const ANT_SVG_TEMPLATE = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" width="36" height="18">
-  <!-- Head -->
-  <ellipse cx="100" cy="30" rx="11" ry="10" fill="#1a1008"/>
-  <!-- Antennae -->
-  <line x1="108" y1="22" x2="118" y2="10" stroke="#1a1008" stroke-width="2" stroke-linecap="round"/>
-  <line x1="104" y1="20" x2="112" y2="8"  stroke="#1a1008" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="118" cy="10" r="2" fill="#1a1008"/>
-  <circle cx="112" cy="8"  r="2" fill="#1a1008"/>
-  <!-- Thorax -->
-  <ellipse cx="76" cy="30" rx="13" ry="10" fill="#241608"/>
-  <!-- Abdomen -->
-  <ellipse cx="46" cy="30" rx="20" ry="14" fill="#1a1008"/>
-  <!-- Shine on abdomen -->
-  <ellipse cx="42" cy="24" rx="8" ry="4" fill="#2e2010" opacity="0.5"/>
-  <!-- Legs (3 per side, alternating angles for realism) -->
-  <!-- Left legs -->
-  <line x1="68" y1="32" x2="52" y2="48" stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="52" y1="48" x2="44" y2="58" stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-
-  <line x1="76" y1="38" x2="60" y2="54" stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="60" y1="54" x2="50" y2="60" stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-
-  <line x1="88" y1="36" x2="80" y2="52" stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="80" y1="52" x2="72" y2="58" stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-
-  <!-- Right legs -->
-  <line x1="68" y1="28" x2="52" y2="12" stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="52" y1="12" x2="44" y2="2"  stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-
-  <line x1="76" y1="22" x2="60" y2="6"  stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="60" y1="6"  x2="50" y2="0"  stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-
-  <line x1="88" y1="24" x2="80" y2="8"  stroke="#1a1008" stroke-width="2.2" stroke-linecap="round"/>
-  <line x1="80" y1="8"  x2="72" y2="2"  stroke="#1a1008" stroke-width="1.8" stroke-linecap="round"/>
-</svg>`;
-
-/* Each ant walks a unique bezier path across the screen */
-const ANT_PATHS = [
-  /* top area, left→right */
-  (W,H) => `M -60 ${H*0.12} Q ${W*0.25} ${H*0.04}, ${W*0.5} ${H*0.15} T ${W+60} ${H*0.08}`,
-  /* middle, slight wave */
-  (W,H) => `M -60 ${H*0.45} Q ${W*0.3} ${H*0.3}, ${W*0.6} ${H*0.5} T ${W+60} ${H*0.4}`,
-  /* bottom, right→left (reversed) */
-  (W,H) => `M ${W+60} ${H*0.78} Q ${W*0.7} ${H*0.85}, ${W*0.4} ${H*0.72} T -60 ${H*0.8}`,
-  /* diagonal crossing */
-  (W,H) => `M -60 ${H*0.65} Q ${W*0.4} ${H*0.55}, ${W*0.7} ${H*0.7} T ${W+60} ${H*0.6}`,
-  /* extra ant near bottom */
-  (W,H) => `M -60 ${H*0.9} Q ${W*0.2} ${H*0.82}, ${W*0.55} ${H*0.92} T ${W+60} ${H*0.87}`,
-];
-
-const ANT_DURATIONS = [14, 18, 22, 16, 20]; /* seconds per ant */
-const ANT_DELAYS    = [0, 5, 2, 9, 14];     /* start offset seconds */
-
-const antContainer = document.getElementById('ant-container');
-
-/* Leg-wiggle: we animate each ant by walking it along its path manually
-   using requestAnimationFrame so we can also oscillate legs vertically */
-const antInstances = [];
-
-function createAnt(pathFn, duration, delay) {
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
-  wrapper.innerHTML = ANT_SVG_TEMPLATE;
-  const svg = wrapper.querySelector('svg');
-  antContainer.appendChild(wrapper);
-
-  /* get the 6 "left" and "right" leg lines for wiggling */
-  const lines = svg.querySelectorAll('line');
-  /* lines 0,2,4 = left legs bottom segment; 1,3,5 = top segment; 6,8,10 right; 7,9,11 right bottom */
-  /* We'll just animate all lines with a slight Y wobble keyed to time */
-
-  let startTime = null;
-  const totalMs = duration * 1000;
-  const delayMs = delay * 1000;
-
-  function getXY(t, pathStr) {
-    /* Evaluate cubic bezier from path string at t∈[0,1] using a temp SVG */
-    const tmp = document.createElementNS('http://www.w3.org/2000/svg','path');
-    tmp.setAttribute('d', pathStr);
-    const len = tmp.getTotalLength();
-    const pt  = tmp.getPointAtLength(len * t);
-    /* also get derivative for angle */
-    const eps = 0.002;
-    const t2  = Math.min(1, t + eps);
-    const pt2 = tmp.getPointAtLength(len * t2);
-    const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI;
-    return { x: pt.x, y: pt.y, angle };
-  }
-
-  function tick(ts) {
-    if (!startTime) startTime = ts + delayMs;
-    const elapsed = ts - startTime;
-    if (elapsed < 0) { requestAnimationFrame(tick); return; }
-
-    const t = (elapsed % totalMs) / totalMs;
-    const W = window.innerWidth, H = window.innerHeight;
-    const path = pathFn(W, H);
-    const { x, y, angle } = getXY(t, path);
-
-    /* Leg wiggle — alternate legs up/down at walking frequency */
-    const freq = 6; /* leg cycles per second */
-    const phase = (elapsed / 1000) * freq * Math.PI * 2;
-    const legAmp = 3; /* px wobble amplitude */
-
-    /* left-side legs (lines 0,2,4 = main segment; odd = lower segment) */
-    [0,2,4].forEach((i, idx) => {
-      const ln = lines[i];
-      if (!ln) return;
-      const sign = (idx % 2 === 0) ? 1 : -1;
-      const w = Math.sin(phase + idx * 1.2) * legAmp * sign;
-      const base = parseFloat(ln.getAttribute('y1'));
-      ln.setAttribute('y2', (parseFloat(ln.getAttribute('y2')) % 60) + w);
-    });
-
-    wrapper.style.transform = `translate(${x}px,${y}px) rotate(${angle}deg) translate(-18px,-9px)`;
-    wrapper.style.opacity = '1';
-    requestAnimationFrame(tick);
-  }
-
-  requestAnimationFrame(tick);
-}
-
-function initAnts() {
-  ANT_PATHS.forEach((fn, i) => createAnt(fn, ANT_DURATIONS[i], ANT_DELAYS[i]));
-}
-initAnts();
-window.addEventListener('resize', () => {
-  /* ants auto-recalculate via W/H inside tick */
-});
-
-
-/* ═══════════════════════════════════════
-   FIREWORKS
-═══════════════════════════════════════ */
-const canvas = document.getElementById('fireworks-canvas');
-const ctx    = canvas.getContext('2d');
-let fwParticles = [];
-
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-class FWParticle {
-  constructor(x,y,color) {
-    this.x=x; this.y=y; this.color=color;
-    this.vx=(Math.random()-0.5)*(Math.random()*14);
-    this.vy=(Math.random()-0.5)*(Math.random()*14);
-    this.alpha=1; this.friction=0.96; this.gravity=0.15;
-  }
-  draw() {
-    ctx.save(); ctx.globalAlpha=this.alpha; ctx.beginPath();
-    ctx.arc(this.x,this.y,2,0,Math.PI*2);
-    ctx.fillStyle=this.color; ctx.shadowBlur=10; ctx.shadowColor=this.color;
-    ctx.fill(); ctx.restore();
-  }
-  update() {
-    this.vx*=this.friction; this.vy*=this.friction;
-    this.vy+=this.gravity; this.x+=this.vx; this.y+=this.vy;
-    this.alpha-=0.014;
-  }
-}
-
-function launchFW(tx,ty) {
-  const colors=['#f5c9a8','#c89a5a','#fdf3d4','#d4a060','#a07030','#f5e0a0','#fff8e0'];
-  const count = tx!==undefined ? 1 : Math.floor(Math.random()*3)+3;
-  for(let i=0;i<count;i++){
-    const x = tx||Math.random()*canvas.width;
-    const y = ty||Math.random()*(canvas.height*0.7);
-    for(let j=0;j<70;j++) fwParticles.push(new FWParticle(x,y,colors[Math.floor(Math.random()*colors.length)]));
-  }
-}
-
-(function animFW(){
-  requestAnimationFrame(animFW);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  fwParticles = fwParticles.filter(p => p.alpha > 0);
-  fwParticles.forEach(p=>{ p.update(); p.draw(); });
-})();
-
-
-/* ═══════════════════════════════════════
-   EYE TOGGLE
-═══════════════════════════════════════ */
-const EYE_OPEN   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
-const EYE_CLOSED = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
-
-function makeEyeToggle(btnId,inputId,iconId) {
-  let vis=false;
-  document.getElementById(btnId).addEventListener('click',()=>{
-    vis=!vis;
-    document.getElementById(inputId).type=vis?'text':'password';
-    document.getElementById(iconId).innerHTML=vis?EYE_CLOSED:EYE_OPEN;
-  });
-}
-makeEyeToggle('eye-btn','password','eye-icon');
-makeEyeToggle('reg-eye-btn','reg-password','reg-eye-icon');
-makeEyeToggle('reg-eye-btn2','reg-confirm','reg-eye-icon2');
-
-
-/* ═══════════════════════════════════════
-   REGISTER DOB
-═══════════════════════════════════════ */
-(function(){
-  const sel=document.getElementById('reg-dob');
-  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const yr=new Date().getFullYear();
-  for(let y=yr;y>=1930;y--){
-    for(let m=0;m<12;m++){
-      const o=document.createElement('option');
-      o.value=`${y}-${String(m+1).padStart(2,'0')}`;
-      o.textContent=`${months[m]} ${y}`;
-      sel.appendChild(o);
+    update() {
+      this.velocity.x *= this.friction;
+      this.velocity.y *= this.friction;
+      this.velocity.y += this.gravity;
+      this.x += this.velocity.x;
+      this.y += this.velocity.y;
+      this.alpha -= 0.015;
     }
   }
-})();
 
+  // 3. Fungsi Launch Fireworks (Sudah mendukung parameter x, y)
+  function launchFireworks(targetX, targetY) {
+    const explosionCount = targetX !== undefined ? 1 : Math.floor(Math.random() * 3) + 3;
+    const colors = ['#bef264', '#ffffff', '#38bdf8', '#fb923c', '#f472b6', '#a78bfa'];
 
-/* ═══════════════════════════════════════
-   CRACK ANIMATION
-═══════════════════════════════════════ */
-function animateCrack() {
-  const path=document.getElementById('crack-path');
-  const b1=document.getElementById('crack-branch1');
-  const b2=document.getElementById('crack-branch2');
-  document.getElementById('crack-overlay').classList.add('visible');
-  let st=null;
-  function drawMain(ts){
-    if(!st)st=ts;
-    const p=Math.min((ts-st)/420,1);
-    path.style.strokeDashoffset=200*(1-p);
-    if(p<1)requestAnimationFrame(drawMain);
-    else{
-      let s2=null;
-      function drawBr(ts2){
-        if(!s2)s2=ts2;
-        const p2=Math.min((ts2-s2)/200,1);
-        b1.style.strokeDashoffset=50*(1-p2);
-        b2.style.strokeDashoffset=50*(1-p2);
-        if(p2<1)requestAnimationFrame(drawBr);
+    for (let i = 0; i < explosionCount; i++) {
+      // Gunakan koordinat tombol jika ada, jika tidak gunakan acak
+      const x = targetX || Math.random() * canvas.width;
+      const y = targetY || Math.random() * (canvas.height * 0.7);
+      
+      for (let j = 0; j < 60; j++) {
+        particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
       }
-      requestAnimationFrame(drawBr);
     }
   }
-  requestAnimationFrame(drawMain);
-}
 
-function spawnCrumbs(cx,cy){
-  const colors=['#c89a5a','#a07030','#8ab4d4','#fdf3d4','#d4b07a','#f5c9a8'];
-  for(let i=0;i<26;i++){
-    const el=document.createElement('div');
-    el.className='crumb';
-    const size=4+Math.random()*9;
-    const angle=(Math.PI*2*i/26)+(Math.random()-0.5)*0.7;
-    const dist=70+Math.random()*130;
-    el.style.cssText=`width:${size}px;height:${size}px;background:${colors[i%colors.length]};left:${cx-size/2}px;top:${cy-size/2}px;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;--rot:${(Math.random()-0.5)*720}deg;--dur:${0.5+Math.random()*0.6}s;`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),1300);
+  // 4. Animasi Loop
+  function animateFireworks() {
+    requestAnimationFrame(animateFireworks);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.1)'; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach((particle, index) => {
+      if (particle.alpha > 0) {
+        particle.update();
+        particle.draw();
+      } else {
+        particles.splice(index, 1);
+      }
+    });
   }
-}
+  animateFireworks();
 
-let crackBusy=false, registerOpen=false;
+  // 5. Submit Form dengan Trigger Kembang Api
+  document.getElementById('financeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('button');
+    const rect = btn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-document.getElementById('create-btn').addEventListener('click',()=>{
-  if(crackBusy)return; crackBusy=true;
-  const body=document.getElementById('toaster-body');
-  const tL=document.getElementById('toaster-left');
-  const tR=document.getElementById('toaster-right');
-  const reg=document.getElementById('register-card');
+    const form = e.target;
+    const statusDiv = document.getElementById('status');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 
-  body.classList.add('shaking');
-  setTimeout(()=>body.classList.remove('shaking'),450);
-  setTimeout(()=>animateCrack(),200);
-  setTimeout(()=>{
-    const tw=document.getElementById('toaster-wrap');
-    const r=tw.getBoundingClientRect();
-    spawnCrumbs(r.left+r.width/2,r.top+r.height/2);
-  },580);
-  setTimeout(()=>{ tL.classList.add('split'); tR.classList.add('split'); },650);
-  setTimeout(()=>{ reg.classList.add('open'); registerOpen=true; crackBusy=false; },900);
-});
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
 
-function closeRegister(){
-  if(!registerOpen)return; registerOpen=false;
-  const reg=document.getElementById('register-card');
-  const tL=document.getElementById('toaster-left');
-  const tR=document.getElementById('toaster-right');
-  const crackPath=document.getElementById('crack-path');
-  const b1=document.getElementById('crack-branch1');
-  const b2=document.getElementById('crack-branch2');
-  reg.classList.remove('open');
-  setTimeout(()=>{ tL.classList.remove('split'); tR.classList.remove('split'); },200);
-  setTimeout(()=>{
-    crackPath.style.strokeDashoffset=200;
-    b1.style.strokeDashoffset=50; b2.style.strokeDashoffset=50;
-    document.getElementById('crack-overlay').classList.remove('visible');
-  },600);
-}
-document.getElementById('reg-close').addEventListener('click',closeRegister);
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", 
+      body: JSON.stringify(data),
+    })
+    .then(() => {
+      // Ledakan utama tepat di tombol
+      launchFireworks(centerX, centerY);
+      
+      // Ledakan tambahan di area atas agar ramai
+      setTimeout(() => launchFireworks(), 400);
+      setTimeout(() => launchFireworks(), 800);
 
-document.getElementById('reg-submit').addEventListener('click',()=>{
-  const u=document.getElementById('reg-username').value.trim();
-  const e=document.getElementById('reg-email').value.trim();
-  const p=document.getElementById('reg-password').value;
-  const c=document.getElementById('reg-confirm').value;
-  if(!u){alert('Masukkan username!');return;}
-  if(!e){alert('Masukkan email!');return;}
-  if(p!==c){alert('Password tidak cocok!');return;}
-  if(p.length<6){alert('Password minimal 6 karakter!');return;}
-  alert(`🎉 Akun "${u}" berhasil dibuat!\nSilakan login.`);
-  document.getElementById('username').value=u;
-  closeRegister();
-});
+      statusDiv.innerText = "✨ Transaksi Berhasil Dicatat!";
+      statusDiv.style.display = 'block';
+      statusDiv.className = "mt-3 text-center alert alert-success";
+      
+      form.reset();
+      document.getElementById('tanggalInput').valueAsDate = new Date();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+      
+      setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+    })
+    .catch(err => {
+      alert("Masalah: " + err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Simpan Transaksi';
+    });
+  });
 
-
-/* ═══════════════════════════════════════
-   LOGIN / LEVER SEQUENCE
-═══════════════════════════════════════ */
-const cardFlipper=document.getElementById('card-flipper');
-const cardInner=document.getElementById('card-inner');
-const leverKnob=document.getElementById('lever-knob');
-const heatingBar=document.getElementById('heating-bar');
-const loginScene=document.getElementById('login-scene');
-const budgetPage=document.getElementById('budget-page');
-let leverPulled=false;
-
-document.getElementById('lever').addEventListener('click',()=>{
-  if(leverPulled||registerOpen)return;
-  leverPulled=true;
-  leverKnob.classList.add('pulled');
-  heatingBar.classList.add('active');
-
-  setTimeout(()=>{
-    cardFlipper.style.transition='transform 0.55s cubic-bezier(0.4,0,0.2,1)';
-    cardFlipper.style.transform='translateY(60px)';
-  },350);
-  setTimeout(()=>{
-    cardInner.style.transition='transform 0.8s cubic-bezier(0.4,0,0.2,1)';
-    cardInner.style.transform='rotateY(180deg)';
-  },960);
-  setTimeout(()=>{
-    heatingBar.classList.remove('active');
-    cardFlipper.style.transition='transform 0.8s cubic-bezier(0.34,1.56,0.64,1)';
-    cardFlipper.style.transform='translateY(-210px)';
-  },1800);
-  setTimeout(()=>{
-    cardFlipper.style.transition='transform 0.7s cubic-bezier(0.4,0,1,1),opacity 0.65s ease';
-    cardFlipper.style.transform='translateY(-560px)';
-    cardFlipper.style.opacity='0';
-    loginScene.classList.add('fade-out');
-  },2750);
-  setTimeout(()=>{
-    loginScene.style.display='none';
-    budgetPage.style.display='flex';
-    /* set today */
-    document.getElementById('f-tanggal').valueAsDate=new Date();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>budgetPage.classList.add('visible')));
-  },3400);
-});
-
-
-/* ═══════════════════════════════════════
-   LOGOUT
-═══════════════════════════════════════ */
-function doLogout(){
-  budgetPage.classList.remove('visible');
-  setTimeout(()=>{
-    budgetPage.style.display='none';
-    cardFlipper.removeAttribute('style');
-    cardInner.removeAttribute('style');
-    loginScene.removeAttribute('style');
-    loginScene.classList.remove('fade-out');
-    leverPulled=false;
-    leverKnob.classList.remove('pulled');
-    heatingBar.classList.remove('active');
-    document.getElementById('username').value='';
-    document.getElementById('password').value='';
-    document.getElementById('eye-icon').innerHTML=EYE_OPEN;
-    document.getElementById('password').type='password';
-    loginScene.style.display='flex';
-  },700);
-}
+  // Set default tanggal hari ini
+  document.getElementById('tanggalInput').valueAsDate = new Date();
 </script>
 </body>
 </html>
