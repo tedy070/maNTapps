@@ -18,7 +18,8 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Lora', serif;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ══════════════════════════════════════════════
@@ -250,30 +251,65 @@ body {
 #register-card .reg-close:hover { color:#c07b3a; }
 
 /* ══════════════════════════════════════════════
-   BUDGET PAGE  (replaces old "home page")
+   BUDGET PAGE
 ══════════════════════════════════════════════ */
 #budget-page {
   display: none; opacity: 0;
-  width: 100%; min-height: 100vh;
-  align-items: flex-start; justify-content: center;
-  padding: 18px 12px 30px;
+  width: 100%;
+  flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 0 0 60px 0;
   transform: scale(0.9) translateY(30px);
   transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
               transform 0.9s cubic-bezier(0.22,1,0.36,1);
-  overflow-y: auto;
 }
 #budget-page.visible { opacity:1; transform:scale(1) translateY(0); }
 
+/* sticky top bar */
+.budget-topbar {
+  position: sticky; top: 0; z-index: 60;
+  width: 100%;
+  background: linear-gradient(135deg, #d4a060, #a07030);
+  padding: 10px 14px 8px 16px;
+  display: flex; flex-direction: column;
+  align-items: center;
+  box-shadow: 0 3px 14px #a0723850;
+}
+.budget-topbar-row {
+  width: 100%; max-width: 480px;
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 8px;
+}
+.ant-toggle-btn {
+  background: #fdf3d4cc; border: 1px solid #c89a5a;
+  border-radius: 6px; padding: 3px 8px;
+  font-family: 'Lora', serif; font-size: 0.68rem;
+  color: #7a4a10; cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.ant-toggle-btn:hover { background: #f5e0a0; transform: scale(1.04); }
+.ant-toggle-btn.ant-off { opacity: 0.6; text-decoration: line-through; }
+.budget-topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; color: #fdf3d4;
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 7px; text-align: center;
+}
 .budget-card {
   background: #fdf3d4;
-  border: 4px solid #c89a5a;
-  border-radius: 20px;
-  padding: 28px 22px 24px;
+  border: 3px solid #c89a5a;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  padding: 22px 16px 30px;
   width: 100%; max-width: 480px;
   margin: 0 auto;
-  box-shadow: 0 10px 32px #a0723840;
+  box-shadow: 0 8px 28px #a0723828;
 }
-
+@media (min-width: 500px) {
+  .budget-card { border: 3px solid #c89a5a; border-radius: 20px; margin-top: 14px; }
+}
 .budget-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.4rem; color: #3a2010;
@@ -341,20 +377,18 @@ body {
 .b-status.success { background: #e8f5e0; border: 1.5px solid #7ac05a; color: #3a6020; }
 .b-status.error   { background: #fde8e8; border: 1.5px solid #e07060; color: #7a1a10; }
 
-/* logout btn - inside card header */
+/* logout btn - small */
 .b-logout {
-  background: none; border: 1.5px solid #c89a5a;
-  border-radius: 8px; padding: 5px 12px;
-  font-family: 'Lora', serif; font-size: 0.78rem; color: #7a4a10;
-  cursor: pointer; transition: background 0.15s;
+  background: #fdf3d4; border: none;
+  border-radius: 6px; padding: 4px 10px;
+  font-family: 'Lora', serif; font-size: 0.72rem;
+  color: #7a4a10; cursor: pointer; font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
 }
-.b-logout:hover { background: #f5e0a0; }
+.b-logout:hover { background: #f5e0a0; transform: scale(1.03); }
 
-.budget-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 20px;
-}
-
+.budget-header { display: none; }
 .budget-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
 .footer-note { text-align: center; margin-top: 14px; font-size: 0.75rem; color: #b08060; }
 
@@ -485,65 +519,71 @@ body {
 
 <!-- ══════════════ BUDGET PAGE ══════════════ -->
 <div id="budget-page">
-  <div class="budget-wrap">
-    <div class="budget-card">
-      <div class="budget-header">
-        <div class="budget-title" style="margin-bottom:0;">
-          <i class="fa-solid fa-heart-circle-check" style="color:#c07b3a;"></i>
-          Wedding Budgeting
-        </div>
-        <button class="b-logout" onclick="doLogout()">⬅ Logout</button>
-      </div>
 
-      <!-- FORM -->
-      <div>
-        <label class="b-label"><i class="fa-solid fa-calendar-days"></i>Tanggal</label>
-        <input type="date" class="b-input" id="f-tanggal" required>
-
-        <label class="b-label"><i class="fa-solid fa-arrow-right-arrow-left"></i>Jenis Transaksi</label>
-        <select class="b-select" id="f-jenis" required>
-          <option value="" disabled selected>Pilih Jenis Transaksi...</option>
-          <option value="Income">Income (Pemasukan)</option>
-          <option value="Expenses">Expenses (Pengeluaran)</option>
-        </select>
-
-        <label class="b-label"><i class="fa-solid fa-tag"></i>Kategori</label>
-        <select class="b-select" id="f-kategori" required>
-          <option value="" disabled selected>Pilih Kategori...</option>
-          <optgroup label="Pemasukan">
-            <option value="Tabungan">Tabungan</option>
-            <option value="Bonus">Bonus</option>
-          </optgroup>
-          <optgroup label="Pengeluaran">
-            <option value="Administrasi Persiapan Pernikahan">Administrasi Persiapan</option>
-            <option value="Prayer Sett">Prayer Set</option>
-            <option value="Toiletries">Toiletries</option>
-            <option value="Skincare/Make Up">Skincare &amp; Make Up</option>
-            <option value="Clothes">Clothes</option>
-            <option value="Mahar/Souvenir">Mahar &amp; Souvenir</option>
-            <option value="Invitation">Invitation</option>
-            <option value="Lain-Lain">Lain-Lain</option>
-          </optgroup>
-          <option value="Lainnya">Lainnya</option>
-        </select>
-
-        <label class="b-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
-        <div class="b-input-group">
-          <span class="b-prefix">Rp</span>
-          <input type="number" class="b-input" id="f-nominal" placeholder="0" inputmode="numeric" required>
-        </div>
-
-        <label class="b-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
-        <textarea class="b-textarea" id="f-keterangan" placeholder="Catat sesuai yang berkaitan contoh Tedy, Nadya, Mukena, Sajadah..."></textarea>
-
-        <button class="b-submit" id="btn-simpan" onclick="simpanTransaksi()">
-          <i class="fa-solid fa-paper-plane"></i> Simpan Transaksi
-        </button>
-        <div class="b-status" id="b-status"></div>
-      </div>
+  <!-- sticky top bar: buttons row on top, title centered below -->
+  <div class="budget-topbar">
+    <div class="budget-topbar-row">
+      <button class="ant-toggle-btn" id="ant-toggle-btn" onclick="toggleAnts()">🐜 Ant ON</button>
+      <button class="b-logout" onclick="doLogout()">⬅ Logout</button>
     </div>
-    <p class="footer-note">© 2026 Wedding Planner Ledger</p>
+    <div class="budget-topbar-title">
+      <i class="fa-solid fa-heart-circle-check"></i>
+      Wedding Budgeting
+    </div>
   </div>
+
+  <!-- form card: connects flush to topbar on mobile -->
+  <div class="budget-card">
+
+    <label class="b-label"><i class="fa-solid fa-calendar-days"></i>Tanggal</label>
+    <input type="date" class="b-input" id="f-tanggal" required>
+
+    <label class="b-label"><i class="fa-solid fa-arrow-right-arrow-left"></i>Jenis Transaksi</label>
+    <select class="b-select" id="f-jenis" required>
+      <option value="" disabled selected>Pilih Jenis Transaksi...</option>
+      <option value="Income">Income (Pemasukan)</option>
+      <option value="Expenses">Expenses (Pengeluaran)</option>
+    </select>
+
+    <label class="b-label"><i class="fa-solid fa-tag"></i>Kategori</label>
+    <select class="b-select" id="f-kategori" required>
+      <option value="" disabled selected>Pilih Kategori...</option>
+      <optgroup label="Pemasukan">
+        <option value="Tabungan">Tabungan</option>
+        <option value="Bonus">Bonus</option>
+      </optgroup>
+      <optgroup label="Pengeluaran">
+        <option value="Administrasi Persiapan Pernikahan">Administrasi Persiapan</option>
+        <option value="Prayer Sett">Prayer Set</option>
+        <option value="Toiletries">Toiletries</option>
+        <option value="Skincare/Make Up">Skincare &amp; Make Up</option>
+        <option value="Clothes">Clothes</option>
+        <option value="Mahar/Souvenir">Mahar &amp; Souvenir</option>
+        <option value="Invitation">Invitation</option>
+        <option value="Lain-Lain">Lain-Lain</option>
+      </optgroup>
+      <option value="Lainnya">Lainnya</option>
+    </select>
+
+    <label class="b-label"><i class="fa-solid fa-money-bill-wave"></i>Nominal</label>
+    <div class="b-input-group">
+      <span class="b-prefix">Rp</span>
+      <input type="text" class="b-input" id="f-nominal-display"
+             placeholder="0" inputmode="numeric" autocomplete="off">
+      <input type="hidden" id="f-nominal">
+    </div>
+
+    <label class="b-label"><i class="fa-solid fa-pen-to-square"></i>Keterangan</label>
+    <textarea class="b-textarea" id="f-keterangan"
+      placeholder="Catat sesuai yang berkaitan contoh Tedy, Nadya, Mukena, Sajadah..."></textarea>
+
+    <button class="b-submit" id="btn-simpan" onclick="simpanTransaksi()">
+      <i class="fa-solid fa-paper-plane"></i> Simpan Transaksi
+    </button>
+    <div class="b-status" id="b-status"></div>
+  </div>
+
+  <p class="footer-note">© 2026 Wedding Planner Ledger</p>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -915,15 +955,57 @@ document.getElementById('lever').addEventListener('click',()=>{
 
 
 /* ═══════════════════════════════════════
+   NOMINAL — titik ribuan otomatis
+═══════════════════════════════════════ */
+const nominalDisplay = document.getElementById('f-nominal-display');
+const nominalHidden  = document.getElementById('f-nominal');
+
+nominalDisplay.addEventListener('input', () => {
+  const digits = nominalDisplay.value.replace(/\D/g, '');
+  nominalHidden.value = digits;
+  // format: 1.500.000
+  nominalDisplay.value = digits
+    ? Number(digits).toLocaleString('id-ID')
+    : '';
+});
+
+nominalDisplay.addEventListener('keydown', e => {
+  const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+  if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
+});
+
+
+/* ═══════════════════════════════════════
+   ANT ON/OFF TOGGLE
+═══════════════════════════════════════ */
+let antActive = true;
+
+function toggleAnts() {
+  antActive = !antActive;
+  const btn = document.getElementById('ant-toggle-btn');
+  const container = document.getElementById('ant-container');
+  if (antActive) {
+    container.style.display = '';
+    btn.textContent = '🐜 Ant ON';
+    btn.classList.remove('ant-off');
+  } else {
+    container.style.display = 'none';
+    btn.textContent = '🐜 Ant OFF';
+    btn.classList.add('ant-off');
+  }
+}
+
+
+/* ═══════════════════════════════════════
    BUDGET FORM  –  SIMPAN TRANSAKSI
 ═══════════════════════════════════════ */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw0W-b_DtXHGXtorqfyqwVPZFHWzYqxkl3KKNg8uz06ejjlAxQ-SL6hhBWktradBYd6qA/exec";
 
 function simpanTransaksi() {
-  const tanggal  = document.getElementById('f-tanggal').value;
-  const jenis    = document.getElementById('f-jenis').value;
-  const kategori = document.getElementById('f-kategori').value;
-  const nominal  = document.getElementById('f-nominal').value;
+  const tanggal    = document.getElementById('f-tanggal').value;
+  const jenis      = document.getElementById('f-jenis').value;
+  const kategori   = document.getElementById('f-kategori').value;
+  const nominal    = nominalHidden.value;          // raw digits
   const keterangan = document.getElementById('f-keterangan').value;
   const statusDiv  = document.getElementById('b-status');
   const btn        = document.getElementById('btn-simpan');
@@ -938,7 +1020,7 @@ function simpanTransaksi() {
   btn.disabled=true;
   btn.innerHTML='<span class="spinner"></span> Menyimpan...';
 
-  const data={tanggal,jenis,kategori,nominal,keterangan};
+  const data={tanggal, jenis, kategori, nominal: Number(nominal), keterangan};
 
   fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)})
   .then(()=>{
@@ -957,11 +1039,12 @@ function simpanTransaksi() {
     /* clear form */
     document.getElementById('f-jenis').value='';
     document.getElementById('f-kategori').value='';
-    document.getElementById('f-nominal').value='';
+    nominalDisplay.value='';
+    nominalHidden.value='';
     document.getElementById('f-keterangan').value='';
     document.getElementById('f-tanggal').valueAsDate=new Date();
 
-    /* logout after short delay so user sees fireworks */
+    /* logout after delay */
     setTimeout(()=>{ statusDiv.style.display='none'; doLogout(); },3000);
   })
   .catch(err=>{
