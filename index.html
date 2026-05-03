@@ -323,7 +323,7 @@ body {
 /* title centered below buttons */
 .budget-card-title {
   font-family: 'Playfair Display', serif;
-  font-size: 2.15rem; color: #fdf3d4;
+  font-size: 1.85rem; color: #fdf3d4;
   display: flex; align-items: center; gap: 8px;
   text-align: center; letter-spacing: 0.3px;
 }
@@ -423,7 +423,7 @@ body {
 
 <!-- ══════════════ LOGIN SCENE ══════════════ -->
 <div id="login-scene">
-  <p class="login-title">💍 Input Budgeting</p>
+  <p class="login-title">">💍<br>Input Budgeting</p>
 
   <div class="scene" id="scene">
     <!-- Login card flipper -->
@@ -442,7 +442,7 @@ body {
           <p class="hint">Pull lever to begin</p>
         </div>
         <div class="card-back">
-          <div class="wb-icon">💍</div>
+          <i class="fa-solid fa-heart-circle-check"></i>
           <p class="wb-title">Selamat<br>Datang!</p>
           <p class="wb-sub">Loading budgeting... ✨</p>
         </div>
@@ -534,7 +534,7 @@ body {
         <button class="b-logout" onclick="doLogout()">⬅ Logout</button>
       </div>
       <div class="budget-card-title">
-        <i class="fa-solid fa-heart-circle-check"></i>
+         <div class="wb-icon">💍</div>
         Wedding Budgeting
       </div>
     </div>
